@@ -18,6 +18,43 @@
             min-height: 100vh;
         }
         
+        .nav-bar {
+            max-width: 1200px;
+            margin: 0 auto 20px auto;
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 15px 30px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            border: 2px solid #ff8c00;
+        }
+        
+        .nav-bar a {
+            color: #e0e0e0;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .nav-bar a:hover {
+            background: #ff8c00;
+            color: #000;
+        }
+        
+        .nav-bar a.active {
+            background: #ff8c00;
+            color: #000;
+        }
+        
+        .nav-label {
+            color: #ffd700;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -189,6 +226,13 @@
     </style>
 </head>
 <body>
+    <div class="nav-bar">
+        <span class="nav-label">Camp Budgets:</span>
+        <a href="index.html">Swan Forest</a>
+        <a href="xanadu_budget.html" class="active">Xanadu</a>
+        <a href="live_edge_budget.html">Live Edge Entertainment</a>
+    </div>
+    
     <div class="container">
         <h1>🔥 Xanadu 2026 Budget Planner</h1>
         <div class="subtitle">Partnership with Swan Forest & Live Edge | Xanadu: 30 campers (25% share)</div>

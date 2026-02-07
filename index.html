@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swan Forest 2026 Budget Planner | 120 Burners</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #1a1a1a;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(255, 140, 0, 0.3);
+            border: 2px solid #ff8c00;
+        }
+        
+        h1 {
+            color: #ff8c00;
+            margin-bottom: 8px;
+            font-size: 28px;
+            text-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
+        }
+        
+        .subtitle {
+            color: #999;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff4500 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+        }
+        
+        .summary-card.revenue {
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+        }
+        
+        .summary-card.expenses {
+            background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
+        }
+        
+        .summary-card.profit {
+            background: linear-gradient(135deg, #32cd32 0%, #228b22 100%);
+        }
+        
+        .summary-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .summary-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .category-section {
+            margin-bottom: 30px;
+        }
+        
+        .category-header {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ff8c00;
+        }
+        
+        .category-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ff8c00;
+        }
+        
+        .category-total {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffd700;
+        }
+        
+        .budget-item {
+            display: grid;
+            grid-template-columns: 1fr 150px 120px;
+            gap: 15px;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .budget-item:hover {
+            background: #2a2a2a;
+        }
+        
+        .item-name {
+            font-weight: 500;
+            color: #e0e0e0;
+        }
+        
+        .item-input {
+            position: relative;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #333;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            background: #2a2a2a;
+            color: #e0e0e0;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #ff8c00;
+        }
+        
+        .item-amount {
+            text-align: right;
+            font-weight: 600;
+            color: #ffd700;
+            font-size: 16px;
+        }
+        
+        .revenue-section {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid #ffd700;
+        }
+        
+        .notes {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 30px;
+            border-left: 4px solid #ff8c00;
+        }
+        
+        .notes h3 {
+            color: #ff8c00;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .notes ul {
+            margin-left: 20px;
+            color: #ccc;
+            line-height: 1.6;
+        }
+        
+        .per-person {
+            font-size: 12px;
+            color: #999;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Swan Forest 2026 Budget Planner</h1>
+        <div class="subtitle">Self-discovery's a bitch when you're flammable | Swan Forest: 60 campers (50%) | Xanadu: 30 campers (25%) | Live Edge: 30 campers (25%)</div>
+        
+        <div class="summary">
+            <div class="summary-card revenue">
+                <div class="summary-label">Swan Forest Revenue</div>
+                <div class="summary-value" id="totalRevenue">$0</div>
+                <div class="per-person" id="revenuePerPerson"></div>
+            </div>
+            <div class="summary-card expenses">
+                <div class="summary-label">Swan Forest Total Costs</div>
+                <div class="summary-value" id="totalExpenses">$0</div>
+                <div class="per-person" id="expensePerPerson"></div>
+            </div>
+            <div class="summary-card profit">
+                <div class="summary-label">Swan Forest Net</div>
+                <div class="summary-value" id="netProfit">$0</div>
+            </div>
+        </div>
+
+        <div class="revenue-section">
+            <div class="category-header">
+                <div class="category-title">💰 Swan Forest Revenue (60 campers)</div>
+                <div class="category-total" id="revenueCategoryTotal">$0</div>
+            </div>
+            <div id="revenueItems"></div>
+        </div>
+
+        <div style="background: #2a2a2a; padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 2px solid #ff8c00;">
+            <h2 style="color: #ff8c00; margin-bottom: 15px; font-size: 20px;">📊 Expense Breakdown</h2>
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 2px solid #ff8c00; font-weight: bold; color: #ffd700;">
+                <div>Category</div>
+                <div style="text-align: right;">Total</div>
+                <div style="text-align: right;">Swan Forest (50%)</div>
+            </div>
+            <div id="expenseBreakdown"></div>
+        </div>
+
+        <details style="margin-bottom: 20px;">
+            <summary style="cursor: pointer; padding: 15px; background: #2a2a2a; border-radius: 8px; color: #ff8c00; font-weight: bold; margin-bottom: 10px;">📝 Edit Line Items (Click to Expand)</summary>
+            
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title">⚙️ Operations & Infrastructure (Shared 50%)</div>
+                </div>
+                <div id="operationsItems"></div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title">🚗 Vehicles & Transportation (Shared 50%)</div>
+                </div>
+                <div id="vehiclesItems"></div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title">🎨 Swag & Camp Items (Shared 50%)</div>
+                </div>
+                <div id="swagItems"></div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title">🍽️ Food & Beverage (Split 50% with Live Edge)</div>
+                </div>
+                <div id="foodItems"></div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title">🏠 Forest House & Lodging (Shared 50%)</div>
+                </div>
+                <div id="lodgingItems"></div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title">🎨 Decor & Art (Shared 50%)</div>
+                </div>
+                <div id="decorItems"></div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title">🧹 Cleaning & Sanitation (Shared 50%)</div>
+                </div>
+                <div id="cleaningItems"></div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title">📋 Miscellaneous (Shared 50%)</div>
+                </div>
+                <div id="miscellaneousItems"></div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title">👥 Event Staff (Shared 50%)</div>
+                </div>
+                <div id="staffItems"></div>
+            </div>
+        </details>
+
+        <div class="notes">
+            <h3>📋 Planning Notes</h3>
+            <ul>
+                <li><strong>Partnership Model:</strong> Swan Forest (60 campers, 50%), Xanadu (30 campers, 25%), Live Edge Entertainment (30 campers, 25%)</li>
+                <li><strong>Shared Expenses (50% Swan Forest):</strong> Operations, Vehicles, Swag, Lodging, Decor, Cleaning, Miscellaneous, Staff</li>
+                <li><strong>Food & Beverage:</strong> Split 50/50 between Swan Forest and Live Edge (Xanadu does not participate)</li>
+                <li><strong>Revenue:</strong> Each camp keeps their own camper fee revenue</li>
+                <li><strong>Per-Person Cost:</strong> Shown for Swan Forest's 60 campers only</li>
+                <li><strong>All amounts are editable</strong> - click "Edit Line Items" above to adjust any expense</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const BURNERS = 120;
+        const SCALE_FACTOR = 120 / 65; // From 65 to 120 burners
+
+        const budgetData = {
+            revenue: [
+                { name: 'Swan Forest Campers (50 @ $2,350)', amount: 117500, note: '50 campers' },
+                { name: 'Swan Forest Campers - Class A RV (10 @ $3,250)', amount: 32500, note: '10 Class A RV spots' },
+            ],
+            operations: [
+                { name: 'Generator Rental', amount: 42000, note: 'May need 2 units for 120 people' },
+                { name: 'Generator Fuel', amount: 11000, note: 'Scaled from $5,920' },
+                { name: 'Equipment Purchases', amount: 13000, note: 'Scaled from $7,234' },
+                { name: 'Cable & Power Distribution', amount: 4200, note: 'Scaled from $2,238' },
+                { name: 'Heavy Equipment Rental', amount: 4600, note: 'Scaled from $2,491' },
+                { name: 'Water Fills', amount: 10000, note: 'Increased for 120 people' },
+                { name: 'Pump Outs', amount: 17500, note: 'Scaled from $9,415' },
+                { name: 'Fuel (vehicles/misc)', amount: 11000, note: 'Scaled from $5,921' },
+                { name: 'Deluxe Bathroom ($912.17 + $27.27 Containment Tray)', amount: 939.44, note: 'Premium bathroom rental with tray' },
+            ],
+            vehicles: [
+                { name: 'Refrigerated Truck (Penske 24-26ft, 3 weeks)', amount: 2500, note: 'Includes truck rental + fuel' },
+                { name: 'Swan Repairs & Maint', amount: 4500, note: 'Similar to 2025' },
+                { name: 'Trailer Repairs', amount: 2000, note: 'Similar to 2025' },
+                { name: 'Bike Equipment & Repairs', amount: 1500, note: 'Reduced from $5,000' },
+                { name: 'Small Generator Maint', amount: 600, note: 'Same as 2025' },
+                { name: 'Box Truck Rental (2 Penske 22-26ft, 3 weeks)', amount: 5500, note: '2 trucks @ ~$2,750 each' },
+            ],
+            swag: [
+                { name: 'Swag Patches', amount: 500, note: 'Scaled from $255' },
+                { name: 'Swag Bags', amount: 1300, note: 'Scaled from $693' },
+                { name: 'Swag Pins & Balm', amount: 1000, note: 'Scaled from $547' },
+                { name: 'Swag Yeti Cups', amount: 650, note: 'Scaled from $333' },
+                { name: 'Custom Pins (Shannon)', amount: 2000, note: 'Scaled from $1,100' },
+                { name: 'Swag Hoodies', amount: 1500, note: 'Camp hoodies' },
+            ],
+            food: [
+                { name: 'Perishables & Groceries', amount: 7500, note: 'Scaled from $4,000' },
+                { name: 'Costco (Food & Beverage)', amount: 6000, note: 'Scaled from $3,199' },
+                { name: 'Alcohol', amount: 3200, note: 'Scaled from $1,682' },
+                { name: 'Chef + Kitchen Staff', amount: 2000, note: 'Scaled from $1,000' },
+            ],
+            lodging: [
+                { name: 'Forest House Lodging', amount: 7500, note: 'Increased for 2026' },
+                { name: 'Forest House Staff', amount: 3000, note: 'Similar to 2025' },
+                { name: 'Forest House Equipment', amount: 750, note: 'Similar to 2025' },
+                { name: 'Event Tickets (@$750.00)', amount: 5500, note: 'Scaled from $3,000' },
+            ],
+            decor: [
+                { name: 'Camp Decor & Lighting', amount: 3000, note: 'Ambient lighting, decorations' },
+                { name: 'Shade Structures & Fabric', amount: 1500, note: 'Additional shade materials' },
+            ],
+            cleaning: [
+                { name: 'Cleaning Supplies', amount: 800, note: 'Sanitizers, soap, trash bags' },
+                { name: 'Porta-Potty Servicing', amount: 1200, note: 'Additional servicing if needed' },
+            ],
+            miscellaneous: [
+                { name: 'Contingency Fund', amount: 5000, note: 'Emergency & unexpected costs' },
+                { name: 'Insurance & Permits', amount: 2000, note: 'Event insurance, permits' },
+                { name: 'Communications (Radios)', amount: 1000, note: 'Radio rentals & batteries' },
+            ],
+            staff: [
+                { name: 'Event Staff Wages', amount: 4000, note: 'Setup/breakdown crew' },
+            ]
+        };
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(Math.abs(amount));
+        }
+
+        function createBudgetItem(item, category, index) {
+            return `
+                <div class="budget-item">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-input">
+                        <input type="number" 
+                               id="${category}-${index}" 
+                               value="${item.amount}" 
+                               step="50"
+                               onchange="updateBudget()">
+                    </div>
+                    <div class="item-amount" id="${category}-${index}-display">${formatCurrency(item.amount)}</div>
+                </div>
+            `;
+        }
+
+        function renderBudget() {
+            document.getElementById('revenueItems').innerHTML = 
+                budgetData.revenue.map((item, i) => createBudgetItem(item, 'revenue', i)).join('');
+            
+            document.getElementById('operationsItems').innerHTML = 
+                budgetData.operations.map((item, i) => createBudgetItem(item, 'operations', i)).join('');
+            
+            document.getElementById('vehiclesItems').innerHTML = 
+                budgetData.vehicles.map((item, i) => createBudgetItem(item, 'vehicles', i)).join('');
+            
+            document.getElementById('swagItems').innerHTML = 
+                budgetData.swag.map((item, i) => createBudgetItem(item, 'swag', i)).join('');
+            
+            document.getElementById('foodItems').innerHTML = 
+                budgetData.food.map((item, i) => createBudgetItem(item, 'food', i)).join('');
+            
+            document.getElementById('lodgingItems').innerHTML = 
+                budgetData.lodging.map((item, i) => createBudgetItem(item, 'lodging', i)).join('');
+            
+            document.getElementById('decorItems').innerHTML = 
+                budgetData.decor.map((item, i) => createBudgetItem(item, 'decor', i)).join('');
+            
+            document.getElementById('cleaningItems').innerHTML = 
+                budgetData.cleaning.map((item, i) => createBudgetItem(item, 'cleaning', i)).join('');
+            
+            document.getElementById('miscellaneousItems').innerHTML = 
+                budgetData.miscellaneous.map((item, i) => createBudgetItem(item, 'miscellaneous', i)).join('');
+            
+            document.getElementById('staffItems').innerHTML = 
+                budgetData.staff.map((item, i) => createBudgetItem(item, 'staff', i)).join('');
+            
+            updateBudget();
+        }
+
+        function updateBudget() {
+            const SWAN_FOREST_BURNERS = 60; // 50 regular + 10 Class A RV
+            
+            // Calculate Swan Forest revenue
+            let swanRevenue = 0;
+            budgetData.revenue.forEach((item, i) => {
+                const value = parseFloat(document.getElementById(`revenue-${i}`).value) || 0;
+                swanRevenue += value;
+                document.getElementById(`revenue-${i}-display`).textContent = formatCurrency(value);
+            });
+
+            document.getElementById('revenueCategoryTotal').textContent = formatCurrency(swanRevenue);
+
+            // Calculate shared expenses (50% for Swan Forest)
+            const sharedCategories = ['operations', 'vehicles', 'swag', 'lodging', 'decor', 'cleaning', 'miscellaneous', 'staff'];
+            let totalSharedExpenses = 0;
+            let swanSharedExpenses = 0;
+
+            sharedCategories.forEach(category => {
+                let categoryTotal = 0;
+                budgetData[category].forEach((item, i) => {
+                    const value = parseFloat(document.getElementById(`${category}-${i}`).value) || 0;
+                    categoryTotal += value;
+                });
+                totalSharedExpenses += categoryTotal;
+            });
+
+            swanSharedExpenses = totalSharedExpenses * 0.5; // Swan Forest pays 50%
+
+            // Calculate food expenses (split 50/50 between Swan Forest and Live Edge)
+            let totalFoodExpenses = 0;
+            budgetData.food.forEach((item, i) => {
+                const value = parseFloat(document.getElementById(`food-${i}`).value) || 0;
+                totalFoodExpenses += value;
+            });
+            const swanFoodExpenses = totalFoodExpenses * 0.5; // Swan Forest pays 50%
+
+            // Total Swan Forest expenses
+            const swanTotalExpenses = swanSharedExpenses + swanFoodExpenses;
+
+            // Build expense breakdown display
+            let breakdownHTML = '';
+            
+            // Shared expenses
+            sharedCategories.forEach(category => {
+                let categoryTotal = 0;
+                budgetData[category].forEach((item, i) => {
+                    const value = parseFloat(document.getElementById(`${category}-${i}`).value) || 0;
+                    categoryTotal += value;
+                });
+                const swanShare = categoryTotal * 0.5;
+                
+                const categoryNames = {
+                    operations: 'Operations & Infrastructure',
+                    vehicles: 'Vehicles & Transportation',
+                    swag: 'Swag & Camp Items',
+                    lodging: 'Forest House & Lodging',
+                    decor: 'Decor & Art',
+                    cleaning: 'Cleaning & Sanitation',
+                    miscellaneous: 'Miscellaneous',
+                    staff: 'Event Staff'
+                };
+                
+                breakdownHTML += `
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid #333; color: #e0e0e0;">
+                        <div>${categoryNames[category]} <span style="color: #999; font-size: 12px;">(shared 50%)</span></div>
+                        <div style="text-align: right; color: #ffd700;">${formatCurrency(categoryTotal)}</div>
+                        <div style="text-align: right; color: #ff8c00; font-weight: bold;">${formatCurrency(swanShare)}</div>
+                    </div>
+                `;
+            });
+            
+            // Food expenses
+            breakdownHTML += `
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid #333; color: #e0e0e0;">
+                    <div>Food & Beverage <span style="color: #999; font-size: 12px;">(split with Live Edge 50%)</span></div>
+                    <div style="text-align: right; color: #ffd700;">${formatCurrency(totalFoodExpenses)}</div>
+                    <div style="text-align: right; color: #ff8c00; font-weight: bold;">${formatCurrency(swanFoodExpenses)}</div>
+                </div>
+            `;
+            
+            // Totals
+            breakdownHTML += `
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 15px 0 0 0; margin-top: 10px; border-top: 2px solid #ff8c00; color: #ffd700; font-weight: bold; font-size: 18px;">
+                    <div>TOTAL</div>
+                    <div style="text-align: right;">${formatCurrency(totalSharedExpenses + totalFoodExpenses)}</div>
+                    <div style="text-align: right; color: #ff8c00;">${formatCurrency(swanTotalExpenses)}</div>
+                </div>
+            `;
+            
+            document.getElementById('expenseBreakdown').innerHTML = breakdownHTML;
+
+            // Update summary cards
+            document.getElementById('totalRevenue').textContent = formatCurrency(swanRevenue);
+            document.getElementById('totalExpenses').textContent = formatCurrency(swanTotalExpenses);
+            
+            const netProfit = swanRevenue - swanTotalExpenses;
+            const netElement = document.getElementById('netProfit');
+            netElement.textContent = formatCurrency(netProfit);
+            netElement.style.color = netProfit >= 0 ? '#32cd32' : '#dc143c';
+
+            // Per person calculations
+            document.getElementById('revenuePerPerson').textContent = 
+                `${formatCurrency(swanRevenue / SWAN_FOREST_BURNERS)} per person`;
+            document.getElementById('expensePerPerson').textContent = 
+                `${formatCurrency(swanTotalExpenses / SWAN_FOREST_BURNERS)} per person`;
+        }
+
+        // Initialize
+        renderBudget();
+    </script>
+</body>
+</html>

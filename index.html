@@ -814,32 +814,63 @@
         // Initialize
         renderBudget();
         
+        // Load initial data from Firebase once
+        let initialLoadComplete = false;
+        
         // Load data from Firebase
         onValue(budgetRef, (snapshot) => {
-            // Skip if this is a local change we just made
-            if (isLocalChange) {
-                isLocalChange = false;
-                return;
-            }
-            
             const data = snapshot.val();
             if (data) {
-                // Update budgetData with Firebase data
-                Object.keys(data).forEach(category => {
-                    if (budgetData[category] && Array.isArray(data[category])) {
-                        // Replace entire category array to handle additions/deletions
-                        budgetData[category] = data[category].map(item => {
-                            if (typeof item === 'object' && item.name) {
+                // Only update if this is the initial load OR the data is genuinely different from what we have
+                if (!initialLoadComplete) {
+                    initialLoadComplete = true;
+                    // Update budgetData with Firebase data
+                    Object.keys(data).forEach(category => {
+                        if (budgetData[category] && Array.isArray(data[category])) {
+                            budgetData[category] = data[category].map(item => {
+                                if (typeof item === 'object' && item.name) {
+                                    return item;
+                                } else if (typeof item === 'number') {
+                                    return { name: 'Legacy Item', amount: item, note: '' };
+                                }
                                 return item;
-                            } else if (typeof item === 'number') {
-                                // Handle old format (just numbers)
-                                return { name: 'Legacy Item', amount: item, note: '' };
+                            });
+                        }
+                    });
+                    renderBudget();
+                } else {
+                    // For subsequent updates, only update if the data structure changed (add/delete)
+                    let structureChanged = false;
+                    Object.keys(data).forEach(category => {
+                        if (budgetData[category] && Array.isArray(data[category])) {
+                            if (budgetData[category].length !== data[category].length) {
+                                structureChanged = true;
                             }
-                            return item;
+                        }
+                    });
+                    
+                    // Only re-render if structure changed AND we're not in the middle of a local operation
+                    if (structureChanged && !isLocalChange) {
+                        Object.keys(data).forEach(category => {
+                            if (budgetData[category] && Array.isArray(data[category])) {
+                                budgetData[category] = data[category].map(item => {
+                                    if (typeof item === 'object' && item.name) {
+                                        return item;
+                                    } else if (typeof item === 'number') {
+                                        return { name: 'Legacy Item', amount: item, note: '' };
+                                    }
+                                    return item;
+                                });
+                            }
                         });
                         renderBudget();
                     }
-                });
+                }
+            }
+            
+            // Reset the flag after processing
+            if (isLocalChange) {
+                setTimeout(() => { isLocalChange = false; }, 100);
             }
         });
 

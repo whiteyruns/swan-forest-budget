@@ -548,6 +548,8 @@
 
         const BURNERS = 120;
         const SCALE_FACTOR = 120 / 65;
+        
+        let isLocalChange = false; // Flag to prevent Firebase from overriding local changes
 
         const budgetData = {
             revenue: [
@@ -648,6 +650,7 @@
         
         function deleteItem(category, index) {
             if (confirm(`Delete "${budgetData[category][index].name}"?`)) {
+                isLocalChange = true;
                 budgetData[category].splice(index, 1);
                 renderBudget();
                 saveToFirebase();
@@ -659,6 +662,7 @@
             if (name && name.trim()) {
                 const amountStr = prompt('Enter amount:', '0');
                 const amount = parseFloat(amountStr) || 0;
+                isLocalChange = true;
                 budgetData[category].push({ name: name.trim(), amount: amount, note: 'Custom item' });
                 renderBudget();
                 saveToFirebase();
@@ -812,6 +816,12 @@
         
         // Load data from Firebase
         onValue(budgetRef, (snapshot) => {
+            // Skip if this is a local change we just made
+            if (isLocalChange) {
+                isLocalChange = false;
+                return;
+            }
+            
             const data = snapshot.val();
             if (data) {
                 // Update budgetData with Firebase data

@@ -147,7 +147,7 @@
         
         .budget-item {
             display: grid;
-            grid-template-columns: 1fr 150px 120px;
+            grid-template-columns: 2fr 150px 120px 40px;
             gap: 15px;
             align-items: center;
             padding: 15px;
@@ -161,6 +161,86 @@
         .item-name {
             font-weight: 500;
             color: #e0e0e0;
+        }
+        
+        .item-name input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #333;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            transition: border-color 0.2s;
+        }
+        
+        .item-name input:focus {
+            outline: none;
+            border-color: #ff8c00;
+        }
+        
+        .delete-btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+        
+        .delete-btn:hover {
+            background: #a01028;
+            transform: scale(1.1);
+        }
+        
+        .add-item-btn {
+            background: #32cd32;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            margin: 10px 0;
+            transition: all 0.2s;
+        }
+        
+        .add-item-btn:hover {
+            background: #28a428;
+            transform: translateY(-2px);
+        }
+        
+        .save-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #32cd32 0%, #228b22 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(50, 205, 50, 0.4);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .save-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(50, 205, 50, 0.6);
+        }
+        
+        .save-button.saving {
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+        }
+        
+        .save-button.saved {
+            background: linear-gradient(135deg, #32cd32 0%, #228b22 100%);
         }
         
         .item-input {
@@ -280,6 +360,7 @@
                     <div class="category-title">⚙️ Operations & Infrastructure (Shared 50%)</div>
                 </div>
                 <div id="operationsItems"></div>
+                <button class="add-item-btn" onclick="addItem('operations')">+ Add Item</button>
             </div>
 
             <div class="category-section">
@@ -287,6 +368,7 @@
                     <div class="category-title">🚗 Vehicles & Transportation (Shared 50%)</div>
                 </div>
                 <div id="vehiclesItems"></div>
+                <button class="add-item-btn" onclick="addItem('vehicles')">+ Add Item</button>
             </div>
 
             <div class="category-section">
@@ -294,6 +376,7 @@
                     <div class="category-title">🎨 Swag & Camp Items (Shared 50%)</div>
                 </div>
                 <div id="swagItems"></div>
+                <button class="add-item-btn" onclick="addItem('swag')">+ Add Item</button>
             </div>
 
             <div class="category-section">
@@ -301,6 +384,7 @@
                     <div class="category-title">🍽️ Food & Beverage (Split 50% with Live Edge)</div>
                 </div>
                 <div id="foodItems"></div>
+                <button class="add-item-btn" onclick="addItem('food')">+ Add Item</button>
             </div>
 
             <div class="category-section">
@@ -308,6 +392,7 @@
                     <div class="category-title">🏠 Forest House & Lodging (Shared 50%)</div>
                 </div>
                 <div id="lodgingItems"></div>
+                <button class="add-item-btn" onclick="addItem('lodging')">+ Add Item</button>
             </div>
 
             <div class="category-section">
@@ -315,6 +400,7 @@
                     <div class="category-title">🎨 Decor & Art (Shared 50%)</div>
                 </div>
                 <div id="decorItems"></div>
+                <button class="add-item-btn" onclick="addItem('decor')">+ Add Item</button>
             </div>
 
             <div class="category-section">
@@ -322,6 +408,7 @@
                     <div class="category-title">🧹 Cleaning & Sanitation (Shared 50%)</div>
                 </div>
                 <div id="cleaningItems"></div>
+                <button class="add-item-btn" onclick="addItem('cleaning')">+ Add Item</button>
             </div>
 
             <div class="category-section">
@@ -329,6 +416,7 @@
                     <div class="category-title">📋 Miscellaneous (Shared 50%)</div>
                 </div>
                 <div id="miscellaneousItems"></div>
+                <button class="add-item-btn" onclick="addItem('miscellaneous')">+ Add Item</button>
             </div>
 
             <div class="category-section">
@@ -336,6 +424,7 @@
                     <div class="category-title">👥 Event Staff (Shared 50%)</div>
                 </div>
                 <div id="staffItems"></div>
+                <button class="add-item-btn" onclick="addItem('staff')">+ Add Item</button>
             </div>
         </details>
 
@@ -351,6 +440,8 @@
             </ul>
         </div>
     </div>
+    
+    <button class="save-button" id="saveButton" onclick="manualSave()">💾 Save Changes</button>
 
     <script type="module">
         // Firebase Configuration
@@ -447,8 +538,13 @@
 
         function createBudgetItem(item, category, index) {
             return `
-                <div class="budget-item">
-                    <div class="item-name">${item.name}</div>
+                <div class="budget-item" id="item-${category}-${index}">
+                    <div class="item-name">
+                        <input type="text" 
+                               value="${item.name}" 
+                               onchange="updateItemName('${category}', ${index}, this.value)"
+                               style="width: 100%; padding: 8px 12px; border: 2px solid #333; border-radius: 6px; font-size: 14px; background: #1a1a1a; color: #e0e0e0;">
+                    </div>
                     <div class="item-input">
                         <input type="number" 
                                id="${category}-${index}" 
@@ -457,8 +553,32 @@
                                onchange="updateBudget()">
                     </div>
                     <div class="item-amount" id="${category}-${index}-display">${formatCurrency(item.amount)}</div>
+                    <button class="delete-btn" onclick="deleteItem('${category}', ${index})" title="Delete item">✕</button>
                 </div>
             `;
+        }
+        
+        function updateItemName(category, index, newName) {
+            budgetData[category][index].name = newName;
+        }
+        
+        function deleteItem(category, index) {
+            if (confirm(`Delete "${budgetData[category][index].name}"?`)) {
+                budgetData[category].splice(index, 1);
+                renderBudget();
+                saveToFirebase();
+            }
+        }
+        
+        function addItem(category) {
+            const name = prompt('Enter item name:');
+            if (name && name.trim()) {
+                const amountStr = prompt('Enter amount:', '0');
+                const amount = parseFloat(amountStr) || 0;
+                budgetData[category].push({ name: name.trim(), amount: amount, note: 'Custom item' });
+                renderBudget();
+                saveToFirebase();
+            }
         }
 
         function renderBudget() {
@@ -612,18 +732,20 @@
             if (data) {
                 // Update budgetData with Firebase data
                 Object.keys(data).forEach(category => {
-                    if (budgetData[category]) {
-                        budgetData[category].forEach((item, i) => {
-                            if (data[category][i] !== undefined) {
-                                const inputElement = document.getElementById(`${category}-${i}`);
-                                if (inputElement) {
-                                    inputElement.value = data[category][i];
-                                }
+                    if (budgetData[category] && Array.isArray(data[category])) {
+                        // Replace entire category array to handle additions/deletions
+                        budgetData[category] = data[category].map(item => {
+                            if (typeof item === 'object' && item.name) {
+                                return item;
+                            } else if (typeof item === 'number') {
+                                // Handle old format (just numbers)
+                                return { name: 'Legacy Item', amount: item, note: '' };
                             }
+                            return item;
                         });
+                        renderBudget();
                     }
                 });
-                updateBudget();
             }
         });
 
@@ -635,12 +757,36 @@
                 budgetData[category].forEach((item, i) => {
                     const inputElement = document.getElementById(`${category}-${i}`);
                     if (inputElement) {
-                        dataToSave[category].push(parseFloat(inputElement.value) || 0);
+                        dataToSave[category].push({
+                            name: item.name,
+                            amount: parseFloat(inputElement.value) || 0,
+                            note: item.note || ''
+                        });
+                    } else {
+                        dataToSave[category].push(item);
                     }
                 });
             });
             set(budgetRef, dataToSave);
         }
+        
+        // Manual save with visual feedback
+        window.manualSave = function() {
+            const btn = document.getElementById('saveButton');
+            btn.textContent = '⏳ Saving...';
+            btn.className = 'save-button saving';
+            
+            saveToFirebase();
+            
+            setTimeout(() => {
+                btn.textContent = '✅ Saved!';
+                btn.className = 'save-button saved';
+                setTimeout(() => {
+                    btn.textContent = '💾 Save Changes';
+                    btn.className = 'save-button';
+                }, 2000);
+            }, 500);
+        };
 
         // Add save on input change
         document.addEventListener('input', (e) => {

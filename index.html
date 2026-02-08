@@ -860,7 +860,6 @@
         // Load initial data from Firebase once
         let initialLoadComplete = false;
         
-        /* TEMPORARILY DISABLED - Firebase listener causing issues
         // Load data from Firebase
         onValue(budgetRef, (snapshot) => {
             const data = snapshot.val();
@@ -917,7 +916,6 @@
                 setTimeout(() => { isLocalChange = false; }, 100);
             }
         });
-        */ // END TEMPORARILY DISABLED
 
         // Save to Firebase on any change
         function saveToFirebase() {

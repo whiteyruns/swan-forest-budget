@@ -577,10 +577,30 @@
         
         function deleteItem(category, index) {
             if (confirm(`Delete "${budgetData[category][index].name}"?`)) {
-                isLocalChange = true;
+                // Remove from local data
                 budgetData[category].splice(index, 1);
+                
+                // Immediately re-render with new data
                 renderBudget();
-                saveToFirebase();
+                
+                // Save to Firebase - use the CURRENT state of budgetData
+                const dataToSave = {};
+                Object.keys(budgetData).forEach(cat => {
+                    dataToSave[cat] = budgetData[cat].map(item => ({
+                        name: item.name,
+                        amount: item.amount,
+                        note: item.note || ''
+                    }));
+                });
+                
+                // Set the flag and save
+                isLocalChange = true;
+                set(budgetRef, dataToSave).then(() => {
+                    console.log('Delete saved successfully');
+                }).catch(err => {
+                    console.error('Delete failed:', err);
+                    alert('Failed to save deletion: ' + err.message);
+                });
             }
         }
         
@@ -589,10 +609,31 @@
             if (name && name.trim()) {
                 const amountStr = prompt('Enter amount:', '0');
                 const amount = parseFloat(amountStr) || 0;
-                isLocalChange = true;
+                
+                // Add to local data
                 budgetData[category].push({ name: name.trim(), amount: amount, note: 'Custom item' });
+                
+                // Immediately re-render with new data
                 renderBudget();
-                saveToFirebase();
+                
+                // Save to Firebase - use the CURRENT state of budgetData
+                const dataToSave = {};
+                Object.keys(budgetData).forEach(cat => {
+                    dataToSave[cat] = budgetData[cat].map(item => ({
+                        name: item.name,
+                        amount: item.amount,
+                        note: item.note || ''
+                    }));
+                });
+                
+                // Set the flag and save
+                isLocalChange = true;
+                set(budgetRef, dataToSave).then(() => {
+                    console.log('Add saved successfully');
+                }).catch(err => {
+                    console.error('Add failed:', err);
+                    alert('Failed to save addition: ' + err.message);
+                });
             }
         }
 

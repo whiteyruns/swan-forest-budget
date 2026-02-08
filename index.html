@@ -525,6 +525,8 @@
     </div>
     
     <button class="save-button" id="saveButton" onclick="manualSave()">💾 Save Changes</button>
+    
+    <button class="save-button" id="resetButton" onclick="resetToDefaults()" style="bottom: 90px; background: #dc143c;">🔄 Reset to Defaults</button>
 
     <script type="module">
         // Firebase Configuration
@@ -970,6 +972,15 @@
                     btn.className = 'save-button';
                 }, 2000);
             }, 500);
+        };
+        
+        window.resetToDefaults = function() {
+            if (!confirm('This will reset ALL data to default values. Are you sure?')) {
+                return;
+            }
+            
+            // Just reload the page to get fresh budgetData
+            location.reload();
         };
 
         // Add save on input change

@@ -711,22 +711,6 @@
                 });
             }
         };
-                        name: item.name,
-                        amount: item.amount,
-                        note: item.note || ''
-                    }));
-                });
-                
-                // Set the flag and save
-                isLocalChange = true;
-                set(budgetRef, dataToSave).then(() => {
-                    console.log('Add saved successfully');
-                }).catch(err => {
-                    console.error('Add failed:', err);
-                    alert('Failed to save addition: ' + err.message);
-                });
-            }
-        }
 
         function renderBudget() {
             document.getElementById('revenueItems').innerHTML = 

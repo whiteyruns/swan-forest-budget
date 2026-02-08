@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burning Man 2026 - Budget Access</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            background: #2a2a2a;
+            padding: 40px;
+            border-radius: 16px;
+            border: 2px solid #ff8c00;
+            box-shadow: 0 8px 32px rgba(255, 140, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+        h1 {
+            color: #ff8c00;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+        .subtitle {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+            font-style: italic;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffd700;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #ff8c00;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff8c00 0%, #ffd700 100%);
+            color: #1a1a1a;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+        }
+        .error {
+            background: #dc143c;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .camp-select {
+            margin-bottom: 20px;
+        }
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            font-size: 16px;
+        }
+        select:focus {
+            outline: none;
+            border-color: #ff8c00;
+        }
+        .info {
+            background: #2a2a2a;
+            border: 1px solid #ff8c00;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>🔥 Burning Man 2026</h1>
+        <div class="subtitle">Budget Planner Access</div>
+        
+        <div class="error" id="errorMsg">Incorrect password</div>
+        
+        <div class="input-group camp-select">
+            <label for="camp">Select Your Camp:</label>
+            <select id="camp">
+                <option value="index.html">Swan Forest</option>
+                <option value="xanadu_budget.html">Xanadu</option>
+                <option value="live_edge_budget.html">Live Edge Entertainment</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label for="password">Enter Password:</label>
+            <input type="password" id="password" placeholder="Enter camp password" autofocus>
+        </div>
+        
+        <button onclick="login()">Access Budget</button>
+        
+        <div class="info">
+            🔒 This budget planner is password-protected. Contact your camp organizer for access.
+        </div>
+    </div>
+
+    <script>
+        // Password hash (SHA-256 of "burningman2026")
+        const PASSWORD_HASH = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
+        
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+        
+        async function login() {
+            const password = document.getElementById('password').value;
+            const camp = document.getElementById('camp').value;
+            const errorMsg = document.getElementById('errorMsg');
+            
+            if (!password) {
+                errorMsg.textContent = 'Please enter a password';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            const hash = await hashPassword(password);
+            
+            if (hash === PASSWORD_HASH) {
+                // Store auth token in sessionStorage (expires when browser closes)
+                sessionStorage.setItem('budgetAuth', 'true');
+                sessionStorage.setItem('authTime', Date.now());
+                
+                // Redirect to selected camp
+                window.location.href = camp;
+            } else {
+                errorMsg.textContent = 'Incorrect password';
+                errorMsg.style.display = 'block';
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            }
+        }
+        
+        // Allow Enter key to submit
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -352,9 +352,28 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        // Firebase Configuration
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, onValue, set } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB8c84ghiVWE3EW4nkG0_StFKNXam3QhSQ",
+            authDomain: "burning-man-budgets.firebaseapp.com",
+            databaseURL: "https://burning-man-budgets-default-rtdb.firebaseio.com",
+            projectId: "burning-man-budgets",
+            storageBucket: "burning-man-budgets.firebasestorage.app",
+            messagingSenderId: "558511487220",
+            appId: "1:558511487220:web:987417a56493ae6af4c6a1"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const budgetRef = ref(database, 'budgets/live-edge');
+
         const BURNERS = 120;
-        const SCALE_FACTOR = 120 / 65; // From 65 to 120 burners
+        const SCALE_FACTOR = 120 / 65;
 
         const budgetData = {
             revenue: [
@@ -586,6 +605,49 @@
 
         // Initialize
         renderBudget();
+        
+        // Load data from Firebase
+        onValue(budgetRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // Update budgetData with Firebase data
+                Object.keys(data).forEach(category => {
+                    if (budgetData[category]) {
+                        budgetData[category].forEach((item, i) => {
+                            if (data[category][i] !== undefined) {
+                                const inputElement = document.getElementById(`${category}-${i}`);
+                                if (inputElement) {
+                                    inputElement.value = data[category][i];
+                                }
+                            }
+                        });
+                    }
+                });
+                updateBudget();
+            }
+        });
+
+        // Save to Firebase on any change
+        function saveToFirebase() {
+            const dataToSave = {};
+            Object.keys(budgetData).forEach(category => {
+                dataToSave[category] = [];
+                budgetData[category].forEach((item, i) => {
+                    const inputElement = document.getElementById(`${category}-${i}`);
+                    if (inputElement) {
+                        dataToSave[category].push(parseFloat(inputElement.value) || 0);
+                    }
+                });
+            });
+            set(budgetRef, dataToSave);
+        }
+
+        // Add save on input change
+        document.addEventListener('input', (e) => {
+            if (e.target.type === 'number') {
+                saveToFirebase();
+            }
+        });
     </script>
 </body>
 </html>

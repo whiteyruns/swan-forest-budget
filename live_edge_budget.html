@@ -426,6 +426,14 @@
                 <div id="staffItems"></div>
                 <button class="add-item-btn" onclick="addItem('staff')">+ Add Item</button>
             </div>
+
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title">💼 Camp Director Fee</div>
+                </div>
+                <div id="liveEdgeOnlyItems"></div>
+                <button class="add-item-btn" onclick="addItem('liveEdgeOnly')">+ Add Item</button>
+            </div>
         </details>
 
         <div class="notes">
@@ -526,6 +534,9 @@
             ],
             staff: [
                 { name: 'Event Staff Wages', amount: 4000, note: 'Setup/breakdown crew' },
+            ],
+            liveEdgeOnly: [
+                { name: 'Camp Director Fee', amount: 20000, note: 'Live Edge-only expense' },
             ]
         };
 
@@ -657,6 +668,9 @@
             document.getElementById('staffItems').innerHTML = 
                 budgetData.staff.map((item, i) => createBudgetItem(item, 'staff', i)).join('');
             
+            document.getElementById('liveEdgeOnlyItems').innerHTML = 
+                budgetData.liveEdgeOnly.map((item, i) => createBudgetItem(item, 'liveEdgeOnly', i)).join('');
+            
             updateBudget();
         }
 
@@ -697,8 +711,15 @@
             });
             const liveEdgeFoodExpenses = totalFoodExpenses * 0.5; // Live Edge pays 50%
 
-            // Total Live Edge expenses
-            const liveEdgeTotalExpenses = liveEdgeSharedExpenses + liveEdgeFoodExpenses;
+            // Live Edge-only expenses (100% for Live Edge)
+            let liveEdgeOnlyExpenses = 0;
+            budgetData.liveEdgeOnly.forEach((item, i) => {
+                const value = parseFloat(document.getElementById(`liveEdgeOnly-${i}`).value) || 0;
+                liveEdgeOnlyExpenses += value;
+            });
+
+            // Total Live Edge expenses (shared + food + Live Edge-only)
+            const liveEdgeTotalExpenses = liveEdgeSharedExpenses + liveEdgeFoodExpenses + liveEdgeOnlyExpenses;
 
             // Build expense breakdown display
             let breakdownHTML = '';
@@ -741,11 +762,22 @@
                 </div>
             `;
             
+            // Camp Director Fee (Live Edge-only)
+            if (liveEdgeOnlyExpenses > 0) {
+                breakdownHTML += `
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid #333; color: #e0e0e0;">
+                        <div>Camp Director Fee <span style="color: #999; font-size: 12px;">(100% Live Edge)</span></div>
+                        <div style="text-align: right; color: #ffd700;">${formatCurrency(liveEdgeOnlyExpenses)}</div>
+                        <div style="text-align: right; color: #ff8c00; font-weight: bold;">${formatCurrency(liveEdgeOnlyExpenses)}</div>
+                    </div>
+                `;
+            }
+            
             // Totals
             breakdownHTML += `
                 <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 15px 0 0 0; margin-top: 10px; border-top: 2px solid #ff8c00; color: #ffd700; font-weight: bold; font-size: 18px;">
                     <div>TOTAL</div>
-                    <div style="text-align: right;">${formatCurrency(totalSharedExpenses + totalFoodExpenses)}</div>
+                    <div style="text-align: right;">${formatCurrency(totalSharedExpenses + totalFoodExpenses + liveEdgeOnlyExpenses)}</div>
                     <div style="text-align: right; color: #ff8c00;">${formatCurrency(liveEdgeTotalExpenses)}</div>
                 </div>
             `;

@@ -319,7 +319,7 @@
         
         <div class="summary">
             <div class="summary-card revenue">
-                <div class="summary-label">Live Edge Revenue</div>
+                <div class="summary-label">Live Edge Entertainment Revenue</div>
                 <div class="summary-value" id="totalRevenue">$0</div>
                 <div class="per-person" id="revenuePerPerson"></div>
             </div>
@@ -806,6 +806,7 @@
         // Load initial data from Firebase once
         let initialLoadComplete = false;
         
+        /* TEMPORARILY DISABLED - Firebase listener causing issues
         // Load data from Firebase
         onValue(budgetRef, (snapshot) => {
             const data = snapshot.val();
@@ -862,6 +863,7 @@
                 setTimeout(() => { isLocalChange = false; }, 100);
             }
         });
+        */ // END TEMPORARILY DISABLED
 
         // Save to Firebase on any change
         function saveToFirebase() {

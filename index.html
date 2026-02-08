@@ -644,11 +644,11 @@
             `;
         }
         
-        function updateItemName(category, index, newName) {
+        window.updateItemName = function(category, index, newName) {
             budgetData[category][index].name = newName;
-        }
+        };
         
-        function deleteItem(category, index) {
+        window.deleteItem = function(category, index) {
             if (confirm(`Delete "${budgetData[category][index].name}"?`)) {
                 // Remove from local data
                 budgetData[category].splice(index, 1);
@@ -675,9 +675,9 @@
                     alert('Failed to save deletion: ' + err.message);
                 });
             }
-        }
+        };
         
-        function addItem(category) {
+        window.addItem = function(category) {
             const name = prompt('Enter item name:');
             if (name && name.trim()) {
                 const amountStr = prompt('Enter amount:', '0');
@@ -693,6 +693,22 @@
                 const dataToSave = {};
                 Object.keys(budgetData).forEach(cat => {
                     dataToSave[cat] = budgetData[cat].map(item => ({
+                        name: item.name,
+                        amount: item.amount,
+                        note: item.note || ''
+                    }));
+                });
+                
+                // Set the flag and save
+                isLocalChange = true;
+                set(budgetRef, dataToSave).then(() => {
+                    console.log('Add saved successfully');
+                }).catch(err => {
+                    console.error('Add failed:', err);
+                    alert('Failed to save addition: ' + err.message);
+                });
+            }
+        };
                         name: item.name,
                         amount: item.amount,
                         note: item.note || ''

@@ -429,7 +429,7 @@
             <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px solid #666; font-weight: 700; color: #D4C4B0; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;">
                 <div>Category</div>
                 <div style="text-align: right;">Total</div>
-                <div style="text-align: right;">Xanadu (25%)</div>
+                <div style="text-align: right;" id="xanaduPercentageHeader">Xanadu</div>
             </div>
             <div id="expenseBreakdown"></div>
         </div>
@@ -869,8 +869,59 @@
             updateBudget();
         }
 
-        window.updateBudget = function() {
-            const XANADU_BURNERS = 30;
+        window.updateBudget = async function() {
+            // Calculate Xanadu camper count from revenue items
+            let xanaduCamperCount = 0;
+            budgetData.revenue.forEach(item => {
+                if (item.autoCalculate && item.camperQty) {
+                    xanaduCamperCount += item.camperQty;
+                }
+            });
+            
+            // Get camper counts from other camps via Firebase
+            let swanCamperCount = 0;
+            let liveEdgeCamperCount = 0;
+            
+            try {
+                // Get Swan Forest camper count
+                const swanRef = ref(database, 'budgets/swan-forest/revenue');
+                const swanSnapshot = await get(swanRef);
+                if (swanSnapshot.exists()) {
+                    const swanRevenue = swanSnapshot.val();
+                    if (Array.isArray(swanRevenue)) {
+                        swanRevenue.forEach(item => {
+                            if (item.autoCalculate && item.camperQty) {
+                                swanCamperCount += item.camperQty;
+                            }
+                        });
+                    }
+                }
+                
+                // Get Live Edge camper count
+                const liveEdgeRef = ref(database, 'budgets/live-edge/revenue');
+                const liveEdgeSnapshot = await get(liveEdgeRef);
+                if (liveEdgeSnapshot.exists()) {
+                    const liveEdgeRevenue = liveEdgeSnapshot.val();
+                    if (Array.isArray(liveEdgeRevenue)) {
+                        liveEdgeRevenue.forEach(item => {
+                            if (item.autoCalculate && item.camperQty) {
+                                liveEdgeCamperCount += item.camperQty;
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching camper counts:', error);
+                // Fallback to default counts if Firebase fails
+                swanCamperCount = 60;
+                liveEdgeCamperCount = 30;
+            }
+            
+            // Calculate total campers and dynamic percentages
+            const totalCampers = swanCamperCount + xanaduCamperCount + liveEdgeCamperCount;
+            const xanaduPercentage = totalCampers > 0 ? xanaduCamperCount / totalCampers : 0.25;
+            
+            console.log(`📊 Dynamic Percentages: Xanadu ${xanaduCamperCount}/${totalCampers} = ${(xanaduPercentage * 100).toFixed(2)}%`);
             
             // Calculate Xanadu revenue
             let xanaduRevenue = 0;
@@ -894,7 +945,7 @@
 
             document.getElementById('revenueCategoryTotal').textContent = formatCurrency(xanaduRevenue);
 
-            // Calculate shared expenses (25% for Xanadu)
+            // Calculate shared expenses using DYNAMIC percentage
             const sharedCategories = ['operations', 'vehicles', 'swag', 'lodging', 'decor', 'cleaning', 'miscellaneous', 'staff'];
             let totalSharedExpenses = 0;
             let xanaduSharedExpenses = 0;
@@ -908,7 +959,7 @@
                 totalSharedExpenses += categoryTotal;
             });
 
-            xanaduSharedExpenses = totalSharedExpenses * 0.25; // Xanadu pays 25%
+            xanaduSharedExpenses = totalSharedExpenses * xanaduPercentage; // Dynamic percentage!
 
             // Xanadu does NOT pay for food
             let totalFoodExpenses = 0;
@@ -937,7 +988,7 @@
                     const value = parseFloat(document.getElementById(`${category}-${i}`).value) || 0;
                     categoryTotal += value;
                 });
-                const xanaduShare = categoryTotal * 0.25;
+                const xanaduShare = categoryTotal * xanaduPercentage; // Dynamic!
                 
                 const categoryNames = {
                     operations: 'Operations & Infrastructure',
@@ -952,7 +1003,7 @@
                 
                 breakdownHTML += `
                     <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; padding: 15px 0; border-bottom: 1px solid #666; color: #D4C4B0;">
-                        <div style="font-size: 14px;">${categoryNames[category]} <span style="color: #999; font-size: 11px; letter-spacing: 1px;">(SHARED 25%)</span></div>
+                        <div style="font-size: 14px;">${categoryNames[category]} <span style="color: #999; font-size: 11px; letter-spacing: 1px;">(SHARED ${(xanaduPercentage * 100).toFixed(1)}%)</span></div>
                         <div style="text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${formatCurrency(categoryTotal)}</div>
                         <div style="text-align: right; font-family: 'Courier New', monospace; font-weight: 900; color: #D4C4B0;">${formatCurrency(xanaduShare)}</div>
                     </div>
@@ -989,6 +1040,12 @@
             `;
             
             document.getElementById('expenseBreakdown').innerHTML = breakdownHTML;
+            
+            // Update the header to show dynamic percentage
+            const headerElement = document.getElementById('xanaduPercentageHeader');
+            if (headerElement) {
+                headerElement.textContent = `Xanadu (${(xanaduPercentage * 100).toFixed(1)}%)`;
+            }
 
             // Update summary cards
             document.getElementById('totalRevenue').textContent = formatCurrency(xanaduRevenue);
@@ -999,11 +1056,11 @@
             netElement.textContent = formatCurrency(netProfit);
             netElement.style.color = netProfit >= 0 ? '#32cd32' : '#dc143c';
 
-            // Per person calculations
+            // Per person calculations using dynamic camper count
             document.getElementById('revenuePerPerson').textContent = 
-                `${formatCurrency(xanaduRevenue / XANADU_BURNERS)} per person`;
+                xanaduCamperCount > 0 ? `${formatCurrency(xanaduRevenue / xanaduCamperCount)} per person` : '$0 per person';
             document.getElementById('expensePerPerson').textContent = 
-                `${formatCurrency(xanaduTotalExpenses / XANADU_BURNERS)} per person`;
+                xanaduCamperCount > 0 ? `${formatCurrency(xanaduTotalExpenses / xanaduCamperCount)} per person` : '$0 per person';
         }
 
         // Initialize

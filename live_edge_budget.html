@@ -1020,14 +1020,21 @@
                 // Auto-migrate old revenue structure to new auto-calculation structure
                 if (data.revenue && Array.isArray(data.revenue)) {
                     let needsMigration = false;
+                    // Check if ANY revenue item lacks autoCalculate field
                     data.revenue.forEach(item => {
-                        if (!item.autoCalculate && item.name.includes('Live Edge Campers (30 @ $2,250)')) {
+                        if (!item.hasOwnProperty('autoCalculate')) {
                             needsMigration = true;
                         }
                     });
                     
                     if (needsMigration) {
                         console.log('🔄 Auto-migrating Live Edge revenue structure...');
+                        // Preserve any custom revenue items added by Live Edge
+                        const customRevenue = data.revenue.filter(item => 
+                            item.addedBy === 'live-edge' && 
+                            !item.name.includes('Live Edge Campers')
+                        );
+                        
                         data.revenue = [
                             { 
                                 name: 'Live Edge Campers', 
@@ -1037,7 +1044,8 @@
                                 feePerPerson: 2250,
                                 note: 'Standard campers',
                                 addedBy: 'live-edge'
-                            }
+                            },
+                            ...customRevenue
                         ];
                         // Save migrated data back to Firebase
                         isLocalChange = true;

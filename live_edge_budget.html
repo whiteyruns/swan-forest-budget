@@ -306,6 +306,27 @@
     </style>
 </head>
 <body>
+    <script>
+        // Check authentication
+        (function() {
+            const auth = sessionStorage.getItem('budgetAuth');
+            const authTime = sessionStorage.getItem('authTime');
+            const MAX_SESSION_TIME = 24 * 60 * 60 * 1000; // 24 hours
+            
+            if (!auth || !authTime) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Check if session expired
+            if (Date.now() - parseInt(authTime) > MAX_SESSION_TIME) {
+                sessionStorage.removeItem('budgetAuth');
+                sessionStorage.removeItem('authTime');
+                window.location.href = 'login.html';
+            }
+        })();
+    </script>
+    
     <div class="nav-bar">
         <span class="nav-label">Camp Budgets:</span>
         <a href="index.html">Swan Forest</a>
@@ -550,23 +571,33 @@
         }
 
         function createBudgetItem(item, category, index) {
+            const isLiveEdgeOnly = category === 'liveEdgeOnly';
+            const canEdit = !item.addedBy || item.addedBy === 'live-edge' || isLiveEdgeOnly;
+            
             return `
                 <div class="budget-item" id="item-${category}-${index}">
                     <div class="item-name">
-                        <input type="text" 
-                               value="${item.name}" 
-                               onchange="updateItemName('${category}', ${index}, this.value)"
-                               style="width: 100%; padding: 8px 12px; border: 2px solid #333; border-radius: 6px; font-size: 14px; background: #1a1a1a; color: #e0e0e0;">
+                        ${canEdit ? 
+                            `<input type="text" 
+                                   value="${item.name}" 
+                                   onchange="updateItemName('${category}', ${index}, this.value)"
+                                   style="width: 100%; padding: 8px 12px; border: 2px solid #333; border-radius: 6px; font-size: 14px; background: #1a1a1a; color: #e0e0e0;">` :
+                            `<div style="padding: 8px 12px; color: #999;">${item.name} 🔒</div>`
+                        }
                     </div>
                     <div class="item-input">
                         <input type="number" 
                                id="${category}-${index}" 
                                value="${item.amount}" 
                                step="50"
+                               ${canEdit ? '' : 'readonly style="background: #1a1a1a; color: #999; cursor: not-allowed;"'}
                                onchange="updateBudget()">
                     </div>
                     <div class="item-amount" id="${category}-${index}-display">${formatCurrency(item.amount)}</div>
-                    <button class="delete-btn" onclick="deleteItem('${category}', ${index})" title="Delete item">✕</button>
+                    ${canEdit ? 
+                        `<button class="delete-btn" onclick="deleteItem('${category}', ${index})" title="Delete item">✕</button>` :
+                        `<div style="width: 35px; height: 35px;"></div>`
+                    }
                 </div>
             `;
         }
@@ -576,7 +607,16 @@
         };
         
         window.deleteItem = function(category, index) {
-            if (confirm(`Delete "${budgetData[category][index].name}"?`)) {
+            const item = budgetData[category][index];
+            const isLiveEdgeOnly = category === 'liveEdgeOnly';
+            const canDelete = !item.addedBy || item.addedBy === 'live-edge' || isLiveEdgeOnly;
+            
+            if (!canDelete) {
+                alert('You can only delete items added by Live Edge.');
+                return;
+            }
+            
+            if (confirm(`Delete "${item.name}"?`)) {
                 // Remove from local data
                 budgetData[category].splice(index, 1);
                 
@@ -589,7 +629,8 @@
                     dataToSave[cat] = budgetData[cat].map(item => ({
                         name: item.name,
                         amount: item.amount,
-                        note: item.note || ''
+                        note: item.note || '',
+                        addedBy: item.addedBy || 'swan-forest'
                     }));
                 });
                 
@@ -610,8 +651,13 @@
                 const amountStr = prompt('Enter amount:', '0');
                 const amount = parseFloat(amountStr) || 0;
                 
-                // Add to local data
-                budgetData[category].push({ name: name.trim(), amount: amount, note: 'Custom item' });
+                // Add to local data with addedBy field
+                budgetData[category].push({ 
+                    name: name.trim(), 
+                    amount: amount, 
+                    note: 'Custom item',
+                    addedBy: 'live-edge'
+                });
                 
                 // Immediately re-render with new data
                 renderBudget();
@@ -622,7 +668,8 @@
                     dataToSave[cat] = budgetData[cat].map(item => ({
                         name: item.name,
                         amount: item.amount,
-                        note: item.note || ''
+                        note: item.note || '',
+                        addedBy: item.addedBy || 'swan-forest'
                     }));
                 });
                 
@@ -874,7 +921,8 @@
                         dataToSave[category].push({
                             name: item.name,
                             amount: parseFloat(inputElement.value) || 0,
-                            note: item.note || ''
+                            note: item.note || '',
+                            addedBy: item.addedBy || 'live-edge'
                         });
                     } else {
                         dataToSave[category].push(item);

@@ -390,8 +390,9 @@
     </div>
     
     <div class="container">
-        <h1>🔥 Xanadu 2026 Budget Planner</h1>
-        <div class="subtitle">Partnership with Swan Forest & Live Edge | Xanadu: 30 campers (25% share)</div>
+        <div class="subtitle"><span class="bracket">[</span> BURNING MAN 2026 <span class="bracket">]</span></div>
+        <h1>XANADU</h1>
+        <div class="subtitle">Partnership budget: 30 campers (25% share)</div>
         
         <div class="summary">
             <div class="summary-card revenue">
@@ -846,40 +847,40 @@
                 };
                 
                 breakdownHTML += `
-                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid #333; color: #e0e0e0;">
-                        <div>${categoryNames[category]} <span style="color: #999; font-size: 12px;">(shared 25%)</span></div>
-                        <div style="text-align: right; color: #ffd700;">${formatCurrency(categoryTotal)}</div>
-                        <div style="text-align: right; color: #ff8c00; font-weight: bold;">${formatCurrency(xanaduShare)}</div>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; padding: 15px 0; border-bottom: 1px solid #666; color: #D4C4B0;">
+                        <div style="font-size: 14px;">${categoryNames[category]} <span style="color: #999; font-size: 11px; letter-spacing: 1px;">(SHARED 25%)</span></div>
+                        <div style="text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${formatCurrency(categoryTotal)}</div>
+                        <div style="text-align: right; font-family: 'Courier New', monospace; font-weight: 900; color: #D4C4B0;">${formatCurrency(xanaduShare)}</div>
                     </div>
                 `;
             });
             
             // Food expenses - Xanadu does NOT pay
             breakdownHTML += `
-                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid #333; color: #e0e0e0;">
-                    <div>Food & Beverage <span style="color: #999; font-size: 12px;">(not included)</span></div>
-                    <div style="text-align: right; color: #ffd700;">${formatCurrency(totalFoodExpenses)}</div>
-                    <div style="text-align: right; color: #666; font-weight: bold;">$0</div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; padding: 15px 0; border-bottom: 1px solid #666; color: #D4C4B0;">
+                    <div style="font-size: 14px;">Food & Beverage <span style="color: #999; font-size: 11px; letter-spacing: 1px;">(NOT INCLUDED)</span></div>
+                    <div style="text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${formatCurrency(totalFoodExpenses)}</div>
+                    <div style="text-align: right; font-family: 'Courier New', monospace; font-weight: 900; color: #666;">$0</div>
                 </div>
             `;
 
             // Camp Director Fee (Xanadu-only)
             if (xanaduOnlyExpenses > 0) {
                 breakdownHTML += `
-                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid #333; color: #e0e0e0;">
-                        <div>Camp Director Fee <span style="color: #999; font-size: 12px;">(100% Xanadu)</span></div>
-                        <div style="text-align: right; color: #ffd700;">${formatCurrency(xanaduOnlyExpenses)}</div>
-                        <div style="text-align: right; color: #ff8c00; font-weight: bold;">${formatCurrency(xanaduOnlyExpenses)}</div>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; padding: 15px 0; border-bottom: 1px solid #666; color: #D4C4B0;">
+                        <div style="font-size: 14px;">Camp Director Fee <span style="color: #999; font-size: 11px; letter-spacing: 1px;">(100% XANADU)</span></div>
+                        <div style="text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${formatCurrency(xanaduOnlyExpenses)}</div>
+                        <div style="text-align: right; font-family: 'Courier New', monospace; font-weight: 900; color: #D4C4B0;">${formatCurrency(xanaduOnlyExpenses)}</div>
                     </div>
                 `;
             }
             
             // Totals
             breakdownHTML += `
-                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 15px 0 0 0; margin-top: 10px; border-top: 2px solid #ff8c00; color: #ffd700; font-weight: bold; font-size: 18px;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; padding: 20px 0 0 0; margin-top: 15px; border-top: 2px solid #D4C4B0; color: #D4C4B0; font-weight: 900; font-size: 20px; font-family: Impact, 'Arial Black', sans-serif;">
                     <div>TOTAL</div>
                     <div style="text-align: right;">${formatCurrency(totalSharedExpenses + totalFoodExpenses + xanaduOnlyExpenses)}</div>
-                    <div style="text-align: right; color: #ff8c00;">${formatCurrency(xanaduTotalExpenses)}</div>
+                    <div style="text-align: right;">${formatCurrency(xanaduTotalExpenses)}</div>
                 </div>
             `;
             

@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Burning Man 2026 - Budget Access</title>
+    <title>Swan Forest Budget - Access</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #D4C4B0;
+            color: #000;
             margin: 0;
             padding: 0;
             min-height: 100vh;
@@ -16,111 +22,136 @@
             align-items: center;
             justify-content: center;
         }
+        
         .login-container {
-            background: #2a2a2a;
-            padding: 40px;
-            border-radius: 16px;
-            border: 2px solid #ff8c00;
-            box-shadow: 0 8px 32px rgba(255, 140, 0, 0.3);
-            max-width: 400px;
+            background: #D4C4B0;
+            padding: 60px 40px;
+            max-width: 600px;
             width: 90%;
         }
+        
         h1 {
-            color: #ff8c00;
+            font-family: Impact, 'Arial Black', sans-serif;
+            font-size: 72px;
+            font-weight: 900;
+            line-height: 0.9;
+            letter-spacing: -2px;
             margin-bottom: 10px;
-            font-size: 28px;
-            text-align: center;
+            text-transform: uppercase;
         }
+        
         .subtitle {
-            color: #ffd700;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 14px;
-            font-style: italic;
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            color: #666;
+            font-weight: 600;
         }
+        
+        .tagline {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 30px;
+            max-width: 500px;
+        }
+        
+        .description {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 40px;
+        }
+        
         .input-group {
             margin-bottom: 20px;
         }
+        
         label {
             display: block;
             margin-bottom: 8px;
-            color: #ffd700;
-            font-weight: bold;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
         }
-        input {
+        
+        select, input {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #333;
-            border-radius: 8px;
-            background: #1a1a1a;
-            color: #e0e0e0;
+            padding: 16px;
+            border: 2px solid #000;
+            background: #D4C4B0;
+            color: #000;
             font-size: 16px;
-            box-sizing: border-box;
+            font-family: inherit;
         }
-        input:focus {
+        
+        select:focus, input:focus {
             outline: none;
-            border-color: #ff8c00;
+            border-color: #C42525;
         }
+        
         button {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #ff8c00 0%, #ffd700 100%);
-            color: #1a1a1a;
+            padding: 18px;
+            background: #000;
+            color: #fff;
             border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             cursor: pointer;
             transition: all 0.3s;
+            margin-top: 10px;
         }
+        
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+            background: #C42525;
         }
+        
         .error {
-            background: #dc143c;
+            background: #C42525;
             color: white;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 16px;
             margin-bottom: 20px;
             display: none;
+            font-size: 14px;
         }
-        .camp-select {
-            margin-bottom: 20px;
-        }
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #333;
-            border-radius: 8px;
-            background: #1a1a1a;
-            color: #e0e0e0;
-            font-size: 16px;
-        }
-        select:focus {
-            outline: none;
-            border-color: #ff8c00;
-        }
+        
         .info {
-            background: #2a2a2a;
-            border: 1px solid #ff8c00;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
+            border: 1px solid #000;
+            padding: 20px;
+            margin-top: 30px;
             font-size: 12px;
-            color: #999;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .bracket {
+            color: #666;
+            font-weight: 400;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h1>🔥 Burning Man 2026</h1>
-        <div class="subtitle">Budget Planner Access</div>
+        <div class="subtitle"><span class="bracket">[</span> BURNING MAN 2026 <span class="bracket">]</span></div>
+        <h1>SWAN<br>FOREST</h1>
+        
+        <div class="tagline">
+            Budget planning for our partnership at Black Rock City.
+        </div>
+        
+        <div class="description">
+            Collaborative budget management for Swan Forest, Xanadu, and Live Edge Entertainment. 120 burners. Real-time sync. Full transparency.
+        </div>
         
         <div class="error" id="errorMsg">Incorrect password</div>
         
-        <div class="input-group camp-select">
-            <label for="camp">Select Your Camp:</label>
+        <div class="input-group">
+            <label for="camp">Select Camp</label>
             <select id="camp">
                 <option value="index.html">Swan Forest</option>
                 <option value="xanadu_budget.html">Xanadu</option>
@@ -129,14 +160,15 @@
         </div>
         
         <div class="input-group">
-            <label for="password">Enter Password:</label>
+            <label for="password">Password</label>
             <input type="password" id="password" placeholder="Enter camp password" autofocus>
         </div>
         
-        <button onclick="login()">Access Budget</button>
+        <button onclick="login()">[ Access Budget ]</button>
         
         <div class="info">
-            🔒 This budget planner is password-protected. Contact your camp organizer for access.
+            <strong>SECURE ACCESS</strong><br>
+            This budget planner is password-protected. Contact your camp organizer for credentials.
         </div>
     </div>
 

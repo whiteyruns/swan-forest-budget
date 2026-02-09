@@ -975,6 +975,47 @@
         onValue(budgetRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
+                // Auto-migrate old revenue structure to new auto-calculation structure
+                if (data.revenue && Array.isArray(data.revenue)) {
+                    let needsMigration = false;
+                    data.revenue.forEach(item => {
+                        if (!item.autoCalculate && (
+                            item.name.includes('Swan Forest Campers (50 @ $2,350)') ||
+                            item.name.includes('Swan Forest Campers - Class A RV (10 @ $3,250)')
+                        )) {
+                            needsMigration = true;
+                        }
+                    });
+                    
+                    if (needsMigration) {
+                        console.log('🔄 Auto-migrating revenue structure...');
+                        data.revenue = [
+                            { 
+                                name: 'Swan Forest Campers', 
+                                amount: 117500, 
+                                autoCalculate: true,
+                                camperQty: 50,
+                                feePerPerson: 2350,
+                                note: 'Standard campers',
+                                addedBy: 'swan-forest'
+                            },
+                            { 
+                                name: 'Swan Forest Campers - Class A RV', 
+                                amount: 32500,
+                                autoCalculate: true,
+                                camperQty: 10,
+                                feePerPerson: 3250,
+                                note: 'Class A RV spots',
+                                addedBy: 'swan-forest'
+                            }
+                        ];
+                        // Save migrated data back to Firebase
+                        isLocalChange = true;
+                        set(budgetRef, data);
+                        console.log('✅ Migration complete!');
+                    }
+                }
+                
                 // Only update if this is the initial load OR the data is genuinely different from what we have
                 if (!initialLoadComplete) {
                     initialLoadComplete = true;

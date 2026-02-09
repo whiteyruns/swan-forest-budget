@@ -514,12 +514,16 @@
         <div class="notes">
             <h3>Planning Notes</h3>
             <ul>
-                <li><strong>Partnership Model:</strong> Swan Forest (60 campers, 50%), Xanadu (30 campers, 25%), Live Edge Entertainment (30 campers, 25%)</li>
-                <li><strong>Shared Expenses (50% Swan Forest):</strong> Operations, Vehicles, Swag, Lodging, Decor, Cleaning, Miscellaneous, Staff</li>
+                <li><strong>Partnership Model:</strong> Three camps sharing expenses based on dynamic camper count</li>
+                <li><strong>Dynamic Expense Sharing:</strong> Each camp's percentage is calculated in real-time based on their camper count (Camp Campers ÷ Total Campers)</li>
+                <li><strong>Shared Expenses:</strong> Operations, Vehicles, Swag, Lodging, Decor, Cleaning, Miscellaneous, Staff - distributed by dynamic percentage</li>
                 <li><strong>Food & Beverage:</strong> Split 50/50 between Swan Forest and Live Edge (Xanadu does not participate)</li>
-                <li><strong>Revenue:</strong> Each camp keeps their own camper fee revenue</li>
-                <li><strong>Per-Person Cost:</strong> Shown for Swan Forest's 60 campers only</li>
-                <li><strong>All amounts are editable</strong> - click "Edit Line Items" above to adjust any expense</li>
+                <li><strong>Revenue Tracking:</strong> Each camp manages their own revenue with auto-calculated (Camper Qty × Fee) or manual revenue items</li>
+                <li><strong>Auto-Calculation:</strong> Camp fees automatically calculate based on editable camper quantity and fee per person fields</li>
+                <li><strong>Add Revenue Items:</strong> Click "Add Revenue Item" to create custom pricing tiers (Premium RV, Early Bird, VIP, etc.)</li>
+                <li><strong>Cross-Camp Visibility:</strong> View other camps' total revenue and custom items in "View Camp-Specific Items" section below</li>
+                <li><strong>Real-Time Sync:</strong> All changes sync instantly across camps via Firebase</li>
+                <li><strong>Per-Person Cost:</strong> Calculated for Swan Forest's total campers from auto-calculated revenue items</li>
             </ul>
         </div>
 

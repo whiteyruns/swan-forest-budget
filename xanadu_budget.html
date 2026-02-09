@@ -1019,14 +1019,21 @@
                 // Auto-migrate old revenue structure to new auto-calculation structure
                 if (data.revenue && Array.isArray(data.revenue)) {
                     let needsMigration = false;
+                    // Check if ANY revenue item lacks autoCalculate field
                     data.revenue.forEach(item => {
-                        if (!item.autoCalculate && item.name.includes('Xanadu Campers (30 @ $2,250)')) {
+                        if (!item.hasOwnProperty('autoCalculate')) {
                             needsMigration = true;
                         }
                     });
                     
                     if (needsMigration) {
                         console.log('🔄 Auto-migrating Xanadu revenue structure...');
+                        // Preserve any custom revenue items added by Xanadu
+                        const customRevenue = data.revenue.filter(item => 
+                            item.addedBy === 'xanadu' && 
+                            !item.name.includes('Xanadu Campers')
+                        );
+                        
                         data.revenue = [
                             { 
                                 name: 'Xanadu Campers', 
@@ -1036,7 +1043,8 @@
                                 feePerPerson: 2250,
                                 note: 'Standard campers',
                                 addedBy: 'xanadu'
-                            }
+                            },
+                            ...customRevenue
                         ];
                         // Save migrated data back to Firebase
                         isLocalChange = true;

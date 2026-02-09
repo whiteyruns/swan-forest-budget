@@ -1017,6 +1017,35 @@
         onValue(budgetRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
+                // Auto-migrate old revenue structure to new auto-calculation structure
+                if (data.revenue && Array.isArray(data.revenue)) {
+                    let needsMigration = false;
+                    data.revenue.forEach(item => {
+                        if (!item.autoCalculate && item.name.includes('Live Edge Campers (30 @ $2,250)')) {
+                            needsMigration = true;
+                        }
+                    });
+                    
+                    if (needsMigration) {
+                        console.log('🔄 Auto-migrating Live Edge revenue structure...');
+                        data.revenue = [
+                            { 
+                                name: 'Live Edge Campers', 
+                                amount: 67500,
+                                autoCalculate: true,
+                                camperQty: 30,
+                                feePerPerson: 2250,
+                                note: 'Standard campers',
+                                addedBy: 'live-edge'
+                            }
+                        ];
+                        // Save migrated data back to Firebase
+                        isLocalChange = true;
+                        set(budgetRef, data);
+                        console.log('✅ Live Edge migration complete!');
+                    }
+                }
+                
                 // Only update if this is the initial load OR the data is genuinely different from what we have
                 if (!initialLoadComplete) {
                     initialLoadComplete = true;

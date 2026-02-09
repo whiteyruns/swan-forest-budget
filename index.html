@@ -422,6 +422,7 @@
                 <div class="category-total" id="revenueCategoryTotal">$0</div>
             </div>
             <div id="revenueItems"></div>
+            <button onclick="addRevenueItem()" style="background: #000; color: #D4C4B0; border: none; padding: 12px 24px; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; margin-top: 15px;">[ Add Revenue Item ]</button>
         </div>
 
         <div style="background: #000; padding: 40px; margin-bottom: 40px;">
@@ -809,6 +810,55 @@
                     alert('Failed to save addition: ' + err.message);
                 });
             }
+        };
+        
+        window.addRevenueItem = function() {
+            const itemType = confirm('Click OK for Auto-Calculated Revenue (Camper Qty × Fee)\nClick Cancel for Manual Revenue (Fixed Amount)');
+            
+            const name = prompt('Enter revenue item name (e.g., "Premium RV Spots", "Early Bird Discount"):');
+            if (!name || !name.trim()) return;
+            
+            let newItem;
+            
+            if (itemType) {
+                // Auto-calculated revenue
+                const qtyStr = prompt('Enter camper quantity:', '0');
+                const camperQty = parseFloat(qtyStr) || 0;
+                
+                const feeStr = prompt('Enter fee per person:', '0');
+                const feePerPerson = parseFloat(feeStr) || 0;
+                
+                newItem = {
+                    name: name.trim(),
+                    amount: camperQty * feePerPerson,
+                    autoCalculate: true,
+                    camperQty: camperQty,
+                    feePerPerson: feePerPerson,
+                    note: 'Custom revenue',
+                    addedBy: 'swan-forest'
+                };
+            } else {
+                // Manual revenue
+                const amountStr = prompt('Enter revenue amount:', '0');
+                const amount = parseFloat(amountStr) || 0;
+                
+                newItem = {
+                    name: name.trim(),
+                    amount: amount,
+                    autoCalculate: false,
+                    note: 'Custom revenue',
+                    addedBy: 'swan-forest'
+                };
+            }
+            
+            // Add to local data
+            budgetData.revenue.push(newItem);
+            
+            // Immediately re-render with new data
+            renderBudget();
+            
+            // Save to Firebase
+            saveToFirebase();
         };
 
         function renderBudget() {

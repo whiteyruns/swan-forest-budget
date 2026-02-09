@@ -401,7 +401,7 @@
         
         <div class="summary">
             <div class="summary-card revenue">
-                <div class="summary-label">Swan Forest Revenue</div>
+                <div class="summary-label">Swan Forest Gross Revenue</div>
                 <div class="summary-value" id="totalRevenue">$0</div>
                 <div class="per-person" id="revenuePerPerson"></div>
             </div>
@@ -418,7 +418,7 @@
 
         <div class="revenue-section">
             <div class="category-header">
-                <div class="category-title">Swan Forest Revenue (60 campers)</div>
+                <div class="category-title">Swan Forest Gross Revenue (60 campers)</div>
                 <div class="category-total" id="revenueCategoryTotal">$0</div>
             </div>
             <div id="revenueItems"></div>
@@ -569,8 +569,22 @@
 
         const budgetData = {
             revenue: [
-                { name: 'Swan Forest Campers (50 @ $2,350)', amount: 117500, note: '50 campers' },
-                { name: 'Swan Forest Campers - Class A RV (10 @ $3,250)', amount: 32500, note: '10 Class A RV spots' },
+                { 
+                    name: 'Swan Forest Campers', 
+                    amount: 0, 
+                    autoCalculate: true,
+                    camperQty: 50,
+                    feePerPerson: 2350,
+                    note: 'Standard campers'
+                },
+                { 
+                    name: 'Swan Forest Campers - Class A RV', 
+                    amount: 0,
+                    autoCalculate: true,
+                    camperQty: 10,
+                    feePerPerson: 3250,
+                    note: 'Class A RV spots'
+                },
             ],
             operations: [
                 { name: 'Generator Rental', amount: 42000, note: 'May need 2 units for 120 people' },
@@ -637,6 +651,77 @@
                 maximumFractionDigits: 0
             }).format(Math.abs(amount));
         }
+        
+        function createRevenueItem(item, category, index) {
+            if (item.autoCalculate) {
+                // Auto-calculated revenue item
+                const calculatedAmount = (item.camperQty || 0) * (item.feePerPerson || 0);
+                return `
+                    <div class="budget-item" id="item-${category}-${index}" style="background: #E5DED0; padding: 15px; margin-bottom: 10px;">
+                        <div class="item-name" style="grid-column: 1 / -1; margin-bottom: 15px; font-weight: 700; color: #000;">
+                            ${item.name}
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; align-items: center;">
+                            <div>
+                                <label style="display: block; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; color: #666;">Camper Quantity</label>
+                                <input type="number" 
+                                       id="${category}-${index}-qty" 
+                                       value="${item.camperQty || 0}" 
+                                       onchange="updateAutoCalc('${category}', ${index}, 'qty', this.value)"
+                                       style="width: 100%; padding: 8px 12px; border: 2px solid #000; font-size: 14px; background: #D4C4B0; color: #000; font-family: 'Courier New', monospace; font-weight: 600;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; color: #666;">Fee Per Person</label>
+                                <input type="number" 
+                                       id="${category}-${index}-fee" 
+                                       value="${item.feePerPerson || 0}" 
+                                       onchange="updateAutoCalc('${category}', ${index}, 'fee', this.value)"
+                                       style="width: 100%; padding: 8px 12px; border: 2px solid #000; font-size: 14px; background: #D4C4B0; color: #000; font-family: 'Courier New', monospace; font-weight: 600;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; color: #666;">Total (Locked)</label>
+                                <input type="text" 
+                                       id="${category}-${index}" 
+                                       value="${formatCurrency(calculatedAmount)}" 
+                                       readonly
+                                       style="width: 100%; padding: 8px 12px; border: 2px solid #666; font-size: 14px; background: #E5DED0; color: #666; cursor: not-allowed; font-family: 'Courier New', monospace; font-weight: 900;">
+                            </div>
+                        </div>
+                        <div class="item-amount" id="${category}-${index}-display" style="display: none;">${formatCurrency(calculatedAmount)}</div>
+                    </div>
+                `;
+            } else {
+                // Regular revenue item (manually editable)
+                return createBudgetItem(item, category, index);
+            }
+        }
+        
+        window.updateAutoCalc = function(category, index, field, value) {
+            const item = budgetData[category][index];
+            if (field === 'qty') {
+                item.camperQty = parseFloat(value) || 0;
+            } else if (field === 'fee') {
+                item.feePerPerson = parseFloat(value) || 0;
+            }
+            
+            // Calculate new amount
+            item.amount = item.camperQty * item.feePerPerson;
+            
+            // Update the locked total field
+            const totalField = document.getElementById(`${category}-${index}`);
+            if (totalField) {
+                totalField.value = formatCurrency(item.amount);
+            }
+            
+            // Update the hidden display field for calculations
+            const displayField = document.getElementById(`${category}-${index}-display`);
+            if (displayField) {
+                displayField.textContent = formatCurrency(item.amount);
+            }
+            
+            // Trigger budget update
+            updateBudget();
+        };
 
         function createBudgetItem(item, category, index) {
             return `
@@ -728,7 +813,7 @@
 
         function renderBudget() {
             document.getElementById('revenueItems').innerHTML = 
-                budgetData.revenue.map((item, i) => createBudgetItem(item, 'revenue', i)).join('');
+                budgetData.revenue.map((item, i) => createRevenueItem(item, 'revenue', i)).join('');
             
             document.getElementById('operationsItems').innerHTML = 
                 budgetData.operations.map((item, i) => createBudgetItem(item, 'operations', i)).join('');
@@ -766,9 +851,21 @@
             // Calculate Swan Forest revenue
             let swanRevenue = 0;
             budgetData.revenue.forEach((item, i) => {
-                const value = parseFloat(document.getElementById(`revenue-${i}`).value) || 0;
+                let value;
+                if (item.autoCalculate) {
+                    // Use the calculated amount from budgetData
+                    value = item.amount || 0;
+                } else {
+                    // Use the input field value
+                    const inputElement = document.getElementById(`revenue-${i}`);
+                    value = inputElement ? parseFloat(inputElement.value) || 0 : 0;
+                }
                 swanRevenue += value;
-                document.getElementById(`revenue-${i}-display`).textContent = formatCurrency(value);
+                
+                const displayElement = document.getElementById(`revenue-${i}-display`);
+                if (displayElement) {
+                    displayElement.textContent = formatCurrency(value);
+                }
             });
 
             document.getElementById('revenueCategoryTotal').textContent = formatCurrency(swanRevenue);
@@ -938,7 +1035,19 @@
                 dataToSave[category] = [];
                 budgetData[category].forEach((item, i) => {
                     const inputElement = document.getElementById(`${category}-${i}`);
-                    if (inputElement) {
+                    
+                    // For auto-calculated revenue items, save the calculation fields
+                    if (item.autoCalculate) {
+                        dataToSave[category].push({
+                            name: item.name,
+                            amount: item.amount,
+                            note: item.note || '',
+                            addedBy: item.addedBy || 'swan-forest',
+                            autoCalculate: true,
+                            camperQty: item.camperQty,
+                            feePerPerson: item.feePerPerson
+                        });
+                    } else if (inputElement) {
                         dataToSave[category].push({
                             name: item.name,
                             amount: parseFloat(inputElement.value) || 0,
@@ -1098,16 +1207,27 @@
                 
                 if (xanaduSnapshot.exists()) {
                     const xanaduData = xanaduSnapshot.val();
-                    html += '<h4 style="color: #ff8c00; margin-top: 20px;">🔷 Xanadu Custom Items</h4>';
+                    html += '<h4 style="color: #000; margin-top: 20px; font-weight: 700;">Xanadu Budget Summary</h4>';
                     
-                    let hasItems = false;
+                    // Calculate Xanadu revenue
+                    let xanaduRevenue = 0;
+                    if (xanaduData.revenue && Array.isArray(xanaduData.revenue)) {
+                        xanaduData.revenue.forEach(item => {
+                            xanaduRevenue += item.amount || 0;
+                        });
+                    }
+                    
+                    html += `<p style="color: #000; margin-top: 10px;"><strong>Total Gross Revenue:</strong> ${formatCurrency(xanaduRevenue)}</p>`;
+                    
+                    let hasCustomItems = false;
+                    html += '<p style="color: #000; margin-top: 15px; font-weight: 700;">Custom Items Added by Xanadu:</p>';
                     Object.keys(xanaduData).forEach(category => {
                         if (Array.isArray(xanaduData[category])) {
                             const xanaduItems = xanaduData[category].filter(item => item.addedBy === 'xanadu');
                             if (xanaduItems.length > 0) {
-                                hasItems = true;
-                                html += `<p style="color: #ffd700; margin-top: 10px;"><strong>${category}:</strong></p>`;
-                                html += '<ul style="color: #e0e0e0;">';
+                                hasCustomItems = true;
+                                html += `<p style="color: #666; margin-top: 10px;"><strong>${category}:</strong></p>`;
+                                html += '<ul style="color: #000;">';
                                 xanaduItems.forEach(item => {
                                     html += `<li>${item.name}: ${formatCurrency(item.amount)}</li>`;
                                 });
@@ -1116,7 +1236,7 @@
                         }
                     });
                     
-                    if (!hasItems) {
+                    if (!hasCustomItems) {
                         html += '<p style="color: #999;">No custom items added yet.</p>';
                     }
                 }
@@ -1127,16 +1247,27 @@
                 
                 if (liveEdgeSnapshot.exists()) {
                     const liveEdgeData = liveEdgeSnapshot.val();
-                    html += '<h4 style="color: #ff8c00; margin-top: 20px;">🔶 Live Edge Custom Items</h4>';
+                    html += '<h4 style="color: #000; margin-top: 30px; font-weight: 700;">Live Edge Budget Summary</h4>';
                     
-                    let hasItems = false;
+                    // Calculate Live Edge revenue
+                    let liveEdgeRevenue = 0;
+                    if (liveEdgeData.revenue && Array.isArray(liveEdgeData.revenue)) {
+                        liveEdgeData.revenue.forEach(item => {
+                            liveEdgeRevenue += item.amount || 0;
+                        });
+                    }
+                    
+                    html += `<p style="color: #000; margin-top: 10px;"><strong>Total Gross Revenue:</strong> ${formatCurrency(liveEdgeRevenue)}</p>`;
+                    
+                    let hasCustomItems = false;
+                    html += '<p style="color: #000; margin-top: 15px; font-weight: 700;">Custom Items Added by Live Edge:</p>';
                     Object.keys(liveEdgeData).forEach(category => {
                         if (Array.isArray(liveEdgeData[category])) {
                             const liveEdgeItems = liveEdgeData[category].filter(item => item.addedBy === 'live-edge');
                             if (liveEdgeItems.length > 0) {
-                                hasItems = true;
-                                html += `<p style="color: #ffd700; margin-top: 10px;"><strong>${category}:</strong></p>`;
-                                html += '<ul style="color: #e0e0e0;">';
+                                hasCustomItems = true;
+                                html += `<p style="color: #666; margin-top: 10px;"><strong>${category}:</strong></p>`;
+                                html += '<ul style="color: #000;">';
                                 liveEdgeItems.forEach(item => {
                                     html += `<li>${item.name}: ${formatCurrency(item.amount)}</li>`;
                                 });
@@ -1145,7 +1276,7 @@
                         }
                     });
                     
-                    if (!hasItems) {
+                    if (!hasCustomItems) {
                         html += '<p style="color: #999;">No custom items added yet.</p>';
                     }
                 }

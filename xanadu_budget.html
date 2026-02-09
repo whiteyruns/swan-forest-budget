@@ -520,14 +520,19 @@
         </details>
 
         <div class="notes">
-            <h3>📋 Planning Notes</h3>
+            <h3>Planning Notes</h3>
             <ul>
-                <li><strong>Partnership Model:</strong> Xanadu (30 campers, 25%), Swan Forest (60 campers, 50%), Live Edge (30 campers, 25%)</li>
-                <li><strong>Xanadu Expenses (25% share):</strong> Operations, Vehicles, Swag, Lodging, Decor, Cleaning, Miscellaneous, Staff</li>
-                <li><strong>Food & Beverage:</strong> Xanadu does NOT participate in food costs</li>
-                <li><strong>Revenue:</strong> Xanadu keeps their own camper fee revenue</li>
-                <li><strong>Per-Person Cost:</strong> Shown for Xanadu's 30 campers only</li>
-                <li><strong>All amounts are editable</strong> - click "Edit Line Items" above to adjust any expense</li>
+                <li><strong>Partnership Model:</strong> Three camps sharing expenses based on dynamic camper count</li>
+                <li><strong>Dynamic Expense Sharing:</strong> Xanadu's percentage is calculated in real-time based on camper count (Xanadu Campers ÷ Total Campers)</li>
+                <li><strong>Shared Expenses:</strong> Operations, Vehicles, Swag, Lodging, Decor, Cleaning, Miscellaneous, Staff - Xanadu pays their dynamic percentage</li>
+                <li><strong>Food & Beverage:</strong> Xanadu does NOT participate in food costs (split between Swan Forest and Live Edge only)</li>
+                <li><strong>Revenue Tracking:</strong> Xanadu manages their own revenue with auto-calculated (Camper Qty × Fee) or manual revenue items</li>
+                <li><strong>Auto-Calculation:</strong> Camp fees automatically calculate based on editable camper quantity and fee per person fields</li>
+                <li><strong>Add Revenue Items:</strong> Click "Add Revenue Item" to create custom pricing tiers (Premium RV, Early Bird, VIP, etc.)</li>
+                <li><strong>Xanadu-Specific Fees:</strong> $5,000 camp fee (100% Xanadu)</li>
+                <li><strong>Editing Permissions:</strong> Can only edit items added by Xanadu; Swan Forest items are read-only</li>
+                <li><strong>Real-Time Sync:</strong> All changes sync instantly across camps via Firebase</li>
+                <li><strong>Per-Person Cost:</strong> Calculated for Xanadu's total campers from auto-calculated revenue items</li>
             </ul>
         </div>
     </div>

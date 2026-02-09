@@ -543,16 +543,31 @@
                 <li><strong>All amounts are editable</strong> - click "Edit Line Items" above to adjust any expense</li>
             </ul>
         </div>
+
+        <details class="expense-section">
+            <summary style="cursor: pointer; padding: 15px; background: #333; border-radius: 8px; margin-top: 20px;">
+                <strong style="color: #ffd700; font-size: 18px;">👁️ View Camp-Specific Items</strong>
+                <span style="color: #999; font-size: 14px; margin-left: 10px;">(Items added by Xanadu & Live Edge)</span>
+            </summary>
+            
+            <div style="padding: 20px; background: #2a2a2a; border-radius: 8px; margin-top: 10px;">
+                <button onclick="loadCampItems()" style="background: #ff8c00; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;">🔄 Refresh Camp Items</button>
+                
+                <div id="campItemsDisplay" style="margin-top: 20px;"></div>
+            </div>
+        </details>
     </div>
     
     <button class="save-button" id="saveButton" onclick="manualSave()">💾 Save Changes</button>
+    
+    <button class="save-button" id="pushButton" onclick="pushUpdates()" style="bottom: 150px; background: linear-gradient(135deg, #ff8c00 0%, #ffd700 100%);">🔄 Push Updates to All Camps</button>
     
     <button class="save-button" id="resetButton" onclick="resetToDefaults()" style="bottom: 90px; background: #dc143c;">🔄 Reset to Defaults</button>
 
     <script type="module">
         // Firebase Configuration
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, onValue, set } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, ref, onValue, set, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyB8c84ghiVWE3EW4nkG0_StFKNXam3QhSQ",
@@ -949,7 +964,8 @@
                         dataToSave[category].push({
                             name: item.name,
                             amount: parseFloat(inputElement.value) || 0,
-                            note: item.note || ''
+                            note: item.note || '',
+                            addedBy: item.addedBy || 'swan-forest'
                         });
                     } else {
                         dataToSave[category].push(item);
@@ -984,6 +1000,183 @@
             
             // Just reload the page to get fresh budgetData
             location.reload();
+        };
+        
+        window.pushUpdates = async function() {
+            if (!confirm('This will push all Swan Forest changes to Xanadu and Live Edge budgets. Items they added will be preserved. Continue?')) {
+                return;
+            }
+            
+            const btn = document.getElementById('pushButton');
+            btn.textContent = '⏳ Pushing Updates...';
+            btn.style.background = '#999';
+            
+            try {
+                // Get current Swan Forest data
+                const swanForestRef = ref(database, 'budgets/swan-forest');
+                const swanSnapshot = await get(swanForestRef);
+                
+                if (!swanSnapshot.exists()) {
+                    alert('Swan Forest data not found!');
+                    return;
+                }
+                
+                const swanData = swanSnapshot.val();
+                
+                // Push to Xanadu
+                await pushToCamp('xanadu', swanData);
+                
+                // Push to Live Edge
+                await pushToCamp('live-edge', swanData);
+                
+                btn.textContent = '✅ Updates Pushed!';
+                btn.style.background = '#32cd32';
+                
+                setTimeout(() => {
+                    btn.textContent = '🔄 Push Updates to All Camps';
+                    btn.style.background = 'linear-gradient(135deg, #ff8c00 0%, #ffd700 100%)';
+                }, 3000);
+                
+                alert('✅ Updates successfully pushed to Xanadu and Live Edge!');
+                
+            } catch (error) {
+                console.error('Push failed:', error);
+                alert('❌ Failed to push updates: ' + error.message);
+                
+                btn.textContent = '❌ Push Failed';
+                btn.style.background = '#dc143c';
+                
+                setTimeout(() => {
+                    btn.textContent = '🔄 Push Updates to All Camps';
+                    btn.style.background = 'linear-gradient(135deg, #ff8c00 0%, #ffd700 100%)';
+                }, 3000);
+            }
+        };
+        
+        async function pushToCamp(campName, swanData) {
+            const { get, set } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js');
+            
+            const campRef = ref(database, `budgets/${campName}`);
+            const campSnapshot = await get(campRef);
+            
+            let mergedData = {};
+            
+            if (campSnapshot.exists()) {
+                const campData = campSnapshot.val();
+                
+                // For each category, merge Swan Forest items with camp-specific items
+                Object.keys(swanData).forEach(category => {
+                    mergedData[category] = [];
+                    
+                    // Add all Swan Forest items (will overwrite existing Swan Forest items)
+                    if (Array.isArray(swanData[category])) {
+                        swanData[category].forEach(item => {
+                            if (item.addedBy === 'swan-forest' || !item.addedBy) {
+                                mergedData[category].push(item);
+                            }
+                        });
+                    }
+                    
+                    // Keep camp-specific items (added by this camp)
+                    if (campData[category] && Array.isArray(campData[category])) {
+                        campData[category].forEach(item => {
+                            if (item.addedBy === campName || item.addedBy === 'xanadu' || item.addedBy === 'live-edge') {
+                                // Only add if it's truly from this camp
+                                if (item.addedBy !== 'swan-forest') {
+                                    mergedData[category].push(item);
+                                }
+                            }
+                        });
+                    }
+                });
+                
+                // Keep camp-only categories (xanaduOnly, liveEdgeOnly)
+                if (campName === 'xanadu' && campData.xanaduOnly) {
+                    mergedData.xanaduOnly = campData.xanaduOnly;
+                }
+                if (campName === 'live-edge' && campData.liveEdgeOnly) {
+                    mergedData.liveEdgeOnly = campData.liveEdgeOnly;
+                }
+                
+            } else {
+                // Camp doesn't exist yet, just copy Swan Forest data
+                mergedData = JSON.parse(JSON.stringify(swanData));
+            }
+            
+            // Write merged data to camp
+            await set(campRef, mergedData);
+        }
+        
+        window.loadCampItems = async function() {
+            const displayDiv = document.getElementById('campItemsDisplay');
+            displayDiv.innerHTML = '<p style="color: #999;">Loading...</p>';
+            
+            try {
+                let html = '';
+                
+                // Load Xanadu items
+                const xanaduRef = ref(database, 'budgets/xanadu');
+                const xanaduSnapshot = await get(xanaduRef);
+                
+                if (xanaduSnapshot.exists()) {
+                    const xanaduData = xanaduSnapshot.val();
+                    html += '<h4 style="color: #ff8c00; margin-top: 20px;">🔷 Xanadu Custom Items</h4>';
+                    
+                    let hasItems = false;
+                    Object.keys(xanaduData).forEach(category => {
+                        if (Array.isArray(xanaduData[category])) {
+                            const xanaduItems = xanaduData[category].filter(item => item.addedBy === 'xanadu');
+                            if (xanaduItems.length > 0) {
+                                hasItems = true;
+                                html += `<p style="color: #ffd700; margin-top: 10px;"><strong>${category}:</strong></p>`;
+                                html += '<ul style="color: #e0e0e0;">';
+                                xanaduItems.forEach(item => {
+                                    html += `<li>${item.name}: ${formatCurrency(item.amount)}</li>`;
+                                });
+                                html += '</ul>';
+                            }
+                        }
+                    });
+                    
+                    if (!hasItems) {
+                        html += '<p style="color: #999;">No custom items added yet.</p>';
+                    }
+                }
+                
+                // Load Live Edge items
+                const liveEdgeRef = ref(database, 'budgets/live-edge');
+                const liveEdgeSnapshot = await get(liveEdgeRef);
+                
+                if (liveEdgeSnapshot.exists()) {
+                    const liveEdgeData = liveEdgeSnapshot.val();
+                    html += '<h4 style="color: #ff8c00; margin-top: 20px;">🔶 Live Edge Custom Items</h4>';
+                    
+                    let hasItems = false;
+                    Object.keys(liveEdgeData).forEach(category => {
+                        if (Array.isArray(liveEdgeData[category])) {
+                            const liveEdgeItems = liveEdgeData[category].filter(item => item.addedBy === 'live-edge');
+                            if (liveEdgeItems.length > 0) {
+                                hasItems = true;
+                                html += `<p style="color: #ffd700; margin-top: 10px;"><strong>${category}:</strong></p>`;
+                                html += '<ul style="color: #e0e0e0;">';
+                                liveEdgeItems.forEach(item => {
+                                    html += `<li>${item.name}: ${formatCurrency(item.amount)}</li>`;
+                                });
+                                html += '</ul>';
+                            }
+                        }
+                    });
+                    
+                    if (!hasItems) {
+                        html += '<p style="color: #999;">No custom items added yet.</p>';
+                    }
+                }
+                
+                displayDiv.innerHTML = html || '<p style="color: #999;">No custom items found.</p>';
+                
+            } catch (error) {
+                displayDiv.innerHTML = `<p style="color: #dc143c;">Error loading items: ${error.message}</p>`;
+            }
         };
 
         // Add save on input change

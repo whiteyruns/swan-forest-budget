@@ -429,7 +429,7 @@
             <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px solid #666; font-weight: 700; color: #D4C4B0; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;">
                 <div>Category</div>
                 <div style="text-align: right;">Total</div>
-                <div style="text-align: right;">Live Edge Share</div>
+                <div style="text-align: right;" id="liveEdgePercentageHeader">Live Edge Share</div>
             </div>
             <div id="expenseBreakdown"></div>
         </div>
@@ -869,8 +869,61 @@
             updateBudget();
         }
 
-        window.updateBudget = function() {
-            const LIVE_EDGE_BURNERS = 30;
+        window.updateBudget = async function() {
+            // Calculate Live Edge camper count from revenue items
+            let liveEdgeCamperCount = 0;
+            budgetData.revenue.forEach(item => {
+                if (item.autoCalculate && item.camperQty) {
+                    liveEdgeCamperCount += item.camperQty;
+                }
+            });
+            
+            // Get camper counts from other camps via Firebase
+            let swanCamperCount = 0;
+            let xanaduCamperCount = 0;
+            
+            try {
+                // Get Swan Forest camper count
+                const swanRef = ref(database, 'budgets/swan-forest/revenue');
+                const swanSnapshot = await get(swanRef);
+                if (swanSnapshot.exists()) {
+                    const swanRevenue = swanSnapshot.val();
+                    if (Array.isArray(swanRevenue)) {
+                        swanRevenue.forEach(item => {
+                            if (item.autoCalculate && item.camperQty) {
+                                swanCamperCount += item.camperQty;
+                            }
+                        });
+                    }
+                }
+                
+                // Get Xanadu camper count
+                const xanaduRef = ref(database, 'budgets/xanadu/revenue');
+                const xanaduSnapshot = await get(xanaduRef);
+                if (xanaduSnapshot.exists()) {
+                    const xanaduRevenue = xanaduSnapshot.val();
+                    if (Array.isArray(xanaduRevenue)) {
+                        xanaduRevenue.forEach(item => {
+                            if (item.autoCalculate && item.camperQty) {
+                                xanaduCamperCount += item.camperQty;
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching camper counts:', error);
+                // Fallback to default counts if Firebase fails
+                swanCamperCount = 60;
+                xanaduCamperCount = 30;
+            }
+            
+            // Calculate total campers and dynamic percentages
+            const totalCampers = swanCamperCount + xanaduCamperCount + liveEdgeCamperCount;
+            const liveEdgePercentage = totalCampers > 0 ? liveEdgeCamperCount / totalCampers : 0.25;
+            
+            console.log(`📊 Dynamic Percentages: Live Edge ${liveEdgeCamperCount}/${totalCampers} = ${(liveEdgePercentage * 100).toFixed(2)}%`);
+            
+            const LIVE_EDGE_BURNERS = liveEdgeCamperCount;
             
             // Calculate Live Edge revenue
             let liveEdgeRevenue = 0;
@@ -894,7 +947,7 @@
 
             document.getElementById('revenueCategoryTotal').textContent = formatCurrency(liveEdgeRevenue);
 
-            // Calculate shared expenses (25% for Live Edge)
+            // Calculate shared expenses using DYNAMIC percentage
             const sharedCategories = ['operations', 'vehicles', 'swag', 'lodging', 'decor', 'cleaning', 'miscellaneous', 'staff'];
             let totalSharedExpenses = 0;
             let liveEdgeSharedExpenses = 0;
@@ -908,7 +961,7 @@
                 totalSharedExpenses += categoryTotal;
             });
 
-            liveEdgeSharedExpenses = totalSharedExpenses * 0.25; // Live Edge pays 25%
+            liveEdgeSharedExpenses = totalSharedExpenses * liveEdgePercentage; // Dynamic percentage!
 
             // Calculate food expenses (split 50/50 between Swan Forest and Live Edge)
             let totalFoodExpenses = 0;
@@ -938,7 +991,7 @@
                     const value = parseFloat(document.getElementById(`${category}-${i}`).value) || 0;
                     categoryTotal += value;
                 });
-                const liveEdgeShare = categoryTotal * 0.25;
+                const liveEdgeShare = categoryTotal * liveEdgePercentage; // Dynamic!
                 
                 const categoryNames = {
                     operations: 'Operations & Infrastructure',
@@ -953,7 +1006,7 @@
                 
                 breakdownHTML += `
                     <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; padding: 15px 0; border-bottom: 1px solid #666; color: #D4C4B0;">
-                        <div style="font-size: 14px;">${categoryNames[category]} <span style="color: #999; font-size: 11px; letter-spacing: 1px;">(SHARED 25%)</span></div>
+                        <div style="font-size: 14px;">${categoryNames[category]} <span style="color: #999; font-size: 11px; letter-spacing: 1px;">(SHARED ${(liveEdgePercentage * 100).toFixed(1)}%)</span></div>
                         <div style="text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${formatCurrency(categoryTotal)}</div>
                         <div style="text-align: right; font-family: 'Courier New', monospace; font-weight: 900; color: #D4C4B0;">${formatCurrency(liveEdgeShare)}</div>
                     </div>
@@ -990,6 +1043,12 @@
             `;
             
             document.getElementById('expenseBreakdown').innerHTML = breakdownHTML;
+            
+            // Update the header to show dynamic percentage
+            const headerElement = document.getElementById('liveEdgePercentageHeader');
+            if (headerElement) {
+                headerElement.textContent = `Live Edge (${(liveEdgePercentage * 100).toFixed(1)}%)`;
+            }
 
             // Update summary cards
             document.getElementById('totalRevenue').textContent = formatCurrency(liveEdgeRevenue);
@@ -1000,11 +1059,11 @@
             netElement.textContent = formatCurrency(netProfit);
             netElement.style.color = netProfit >= 0 ? '#32cd32' : '#dc143c';
 
-            // Per person calculations
+            // Per person calculations using dynamic camper count
             document.getElementById('revenuePerPerson').textContent = 
-                `${formatCurrency(liveEdgeRevenue / LIVE_EDGE_BURNERS)} per person`;
+                liveEdgeCamperCount > 0 ? `${formatCurrency(liveEdgeRevenue / liveEdgeCamperCount)} per person` : '$0 per person';
             document.getElementById('expensePerPerson').textContent = 
-                `${formatCurrency(liveEdgeTotalExpenses / LIVE_EDGE_BURNERS)} per person`;
+                liveEdgeCamperCount > 0 ? `${formatCurrency(liveEdgeTotalExpenses / liveEdgeCamperCount)} per person` : '$0 per person';
         }
 
         // Initialize

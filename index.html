@@ -413,7 +413,7 @@
 
         <div class="revenue-section">
             <div class="category-header">
-                <div class="category-title">💰 Swan Forest Revenue (60 campers)</div>
+                <div class="category-title">Swan Forest Revenue (60 campers)</div>
                 <div class="category-total" id="revenueCategoryTotal">$0</div>
             </div>
             <div id="revenueItems"></div>
@@ -490,7 +490,7 @@
 
             <div class="category-section">
                 <div class="category-header">
-                    <div class="category-title">📋 Miscellaneous (Shared 50%)</div>
+                    <div class="category-title">Miscellaneous (Shared 50%)</div>
                 </div>
                 <div id="miscellaneousItems"></div>
                 <button class="add-item-btn" onclick="addItem('miscellaneous')">+ Add Item</button>
@@ -506,7 +506,7 @@
         </details>
 
         <div class="notes">
-            <h3>📋 Planning Notes</h3>
+            <h3>Planning Notes</h3>
             <ul>
                 <li><strong>Partnership Model:</strong> Swan Forest (60 campers, 50%), Xanadu (30 campers, 25%), Live Edge Entertainment (30 campers, 25%)</li>
                 <li><strong>Shared Expenses (50% Swan Forest):</strong> Operations, Vehicles, Swag, Lodging, Decor, Cleaning, Miscellaneous, Staff</li>
@@ -519,23 +519,23 @@
 
         <details class="expense-section">
             <summary style="cursor: pointer; padding: 15px; background: #333; border-radius: 8px; margin-top: 20px;">
-                <strong style="color: #ffd700; font-size: 18px;">👁️ View Camp-Specific Items</strong>
+                <strong style="color: #000; font-size: 18px;">View Camp-Specific Items</strong>
                 <span style="color: #999; font-size: 14px; margin-left: 10px;">(Items added by Xanadu & Live Edge)</span>
             </summary>
             
             <div style="padding: 20px; background: #2a2a2a; border-radius: 8px; margin-top: 10px;">
-                <button onclick="loadCampItems()" style="background: #ff8c00; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;">🔄 Refresh Camp Items</button>
+                <button onclick="loadCampItems()" style="background: #000; color: #D4C4B0; border: none; padding: 12px 24px; cursor: pointer; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 2px;">Refresh Camp Items</button>
                 
                 <div id="campItemsDisplay" style="margin-top: 20px;"></div>
             </div>
         </details>
     </div>
     
-    <button class="save-button" id="saveButton" onclick="manualSave()">💾 Save Changes</button>
+    <button class="save-button" id="saveButton" onclick="manualSave()">[ Save Changes ]</button>
     
-    <button class="save-button" id="pushButton" onclick="pushUpdates()" style="bottom: 150px; background: linear-gradient(135deg, #ff8c00 0%, #ffd700 100%);">🔄 Push Updates to All Camps</button>
+    <button class="save-button" id="pushButton" onclick="pushUpdates()" style="bottom: 150px; background: #C42525; color: white;">[ Push Updates ]</button>
     
-    <button class="save-button" id="resetButton" onclick="resetToDefaults()" style="bottom: 90px; background: #dc143c;">🔄 Reset to Defaults</button>
+    <button class="save-button" id="resetButton" onclick="resetToDefaults()" style="bottom: 90px; background: #C42525; color: white;">[ Reset ]</button>
 
     <script type="module">
         // Firebase Configuration
@@ -819,29 +819,29 @@
                 };
                 
                 breakdownHTML += `
-                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid #333; color: #e0e0e0;">
-                        <div>${categoryNames[category]} <span style="color: #999; font-size: 12px;">(shared 50%)</span></div>
-                        <div style="text-align: right; color: #ffd700;">${formatCurrency(categoryTotal)}</div>
-                        <div style="text-align: right; color: #ff8c00; font-weight: bold;">${formatCurrency(swanShare)}</div>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; padding: 15px 0; border-bottom: 1px solid #666; color: #D4C4B0;">
+                        <div style="font-size: 14px;">${categoryNames[category]} <span style="color: #999; font-size: 11px; letter-spacing: 1px;">(SHARED 50%)</span></div>
+                        <div style="text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${formatCurrency(categoryTotal)}</div>
+                        <div style="text-align: right; font-family: 'Courier New', monospace; font-weight: 900; color: #D4C4B0;">${formatCurrency(swanShare)}</div>
                     </div>
                 `;
             });
             
             // Food expenses
             breakdownHTML += `
-                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid #333; color: #e0e0e0;">
-                    <div>Food & Beverage <span style="color: #999; font-size: 12px;">(split with Live Edge 50%)</span></div>
-                    <div style="text-align: right; color: #ffd700;">${formatCurrency(totalFoodExpenses)}</div>
-                    <div style="text-align: right; color: #ff8c00; font-weight: bold;">${formatCurrency(swanFoodExpenses)}</div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; padding: 15px 0; border-bottom: 1px solid #666; color: #D4C4B0;">
+                    <div style="font-size: 14px;">Food & Beverage <span style="color: #999; font-size: 11px; letter-spacing: 1px;">(SPLIT WITH LIVE EDGE 50%)</span></div>
+                    <div style="text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${formatCurrency(totalFoodExpenses)}</div>
+                    <div style="text-align: right; font-family: 'Courier New', monospace; font-weight: 900; color: #D4C4B0;">${formatCurrency(swanFoodExpenses)}</div>
                 </div>
             `;
             
             // Totals
             breakdownHTML += `
-                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 15px 0 0 0; margin-top: 10px; border-top: 2px solid #ff8c00; color: #ffd700; font-weight: bold; font-size: 18px;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; padding: 20px 0 0 0; margin-top: 15px; border-top: 2px solid #D4C4B0; color: #D4C4B0; font-weight: 900; font-size: 20px; font-family: Impact, 'Arial Black', sans-serif;">
                     <div>TOTAL</div>
                     <div style="text-align: right;">${formatCurrency(totalSharedExpenses + totalFoodExpenses)}</div>
-                    <div style="text-align: right; color: #ff8c00;">${formatCurrency(swanTotalExpenses)}</div>
+                    <div style="text-align: right;">${formatCurrency(swanTotalExpenses)}</div>
                 </div>
             `;
             
@@ -957,10 +957,10 @@
             saveToFirebase();
             
             setTimeout(() => {
-                btn.textContent = '✅ Saved!';
+                btn.textContent = '[ Saved ]';
                 btn.className = 'save-button saved';
                 setTimeout(() => {
-                    btn.textContent = '💾 Save Changes';
+                    btn.textContent = '[ Save Changes ]';
                     btn.className = 'save-button';
                 }, 2000);
             }, 500);
@@ -981,8 +981,8 @@
             }
             
             const btn = document.getElementById('pushButton');
-            btn.textContent = '⏳ Pushing Updates...';
-            btn.style.background = '#999';
+            btn.textContent = '[ Pushing... ]';
+            btn.style.background = '#666';
             
             try {
                 // Get current Swan Forest data
@@ -1002,26 +1002,26 @@
                 // Push to Live Edge
                 await pushToCamp('live-edge', swanData);
                 
-                btn.textContent = '✅ Updates Pushed!';
-                btn.style.background = '#32cd32';
+                btn.textContent = '[ Updates Pushed ]';
+                btn.style.background = '#000';
                 
                 setTimeout(() => {
-                    btn.textContent = '🔄 Push Updates to All Camps';
-                    btn.style.background = 'linear-gradient(135deg, #ff8c00 0%, #ffd700 100%)';
+                    btn.textContent = '[ Push Updates ]';
+                    btn.style.background = '#C42525';
                 }, 3000);
                 
-                alert('✅ Updates successfully pushed to Xanadu and Live Edge!');
+                alert('Updates successfully pushed to Xanadu and Live Edge!');
                 
             } catch (error) {
                 console.error('Push failed:', error);
-                alert('❌ Failed to push updates: ' + error.message);
+                alert('Failed to push updates: ' + error.message);
                 
-                btn.textContent = '❌ Push Failed';
-                btn.style.background = '#dc143c';
+                btn.textContent = '[ Push Failed ]';
+                btn.style.background = '#C42525';
                 
                 setTimeout(() => {
-                    btn.textContent = '🔄 Push Updates to All Camps';
-                    btn.style.background = 'linear-gradient(135deg, #ff8c00 0%, #ffd700 100%)';
+                    btn.textContent = '[ Push Updates ]';
+                    btn.style.background = '#C42525';
                 }, 3000);
             }
         };

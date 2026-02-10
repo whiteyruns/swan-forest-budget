@@ -190,26 +190,39 @@
             const camp = document.getElementById('camp').value;
             const errorMsg = document.getElementById('errorMsg');
             
+            console.log('Login attempt - Camp:', camp);
+            
             if (!password) {
                 errorMsg.textContent = 'Please enter a password';
                 errorMsg.style.display = 'block';
                 return;
             }
             
-            const hash = await hashPassword(password);
-            
-            if (hash === PASSWORD_HASH) {
-                // Store auth token in sessionStorage (expires when browser closes)
-                sessionStorage.setItem('budgetAuth', 'true');
-                sessionStorage.setItem('authTime', Date.now());
+            try {
+                const hash = await hashPassword(password);
+                console.log('Password hash:', hash);
+                console.log('Expected hash:', PASSWORD_HASH);
+                console.log('Match:', hash === PASSWORD_HASH);
                 
-                // Redirect to selected camp
-                window.location.href = camp;
-            } else {
-                errorMsg.textContent = 'Incorrect password';
+                if (hash === PASSWORD_HASH) {
+                    // Store auth token in sessionStorage (expires when browser closes)
+                    sessionStorage.setItem('budgetAuth', 'true');
+                    sessionStorage.setItem('authTime', Date.now());
+                    
+                    console.log('Login successful, redirecting to:', camp);
+                    
+                    // Redirect to selected camp
+                    window.location.href = camp;
+                } else {
+                    errorMsg.textContent = 'Incorrect password';
+                    errorMsg.style.display = 'block';
+                    document.getElementById('password').value = '';
+                    document.getElementById('password').focus();
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMsg.textContent = 'Login error: ' + error.message;
                 errorMsg.style.display = 'block';
-                document.getElementById('password').value = '';
-                document.getElementById('password').focus();
             }
         }
         

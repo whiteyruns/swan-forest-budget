@@ -440,7 +440,7 @@
             
             <div class="category-section">
                 <div class="category-header">
-                    <div class="category-title">Operations & Infrastructure (Shared 50%)</div>
+                    <div class="category-title">Operations & Infrastructure</div>
                 </div>
                 <div id="operationsItems"></div>
                 <button class="add-item-btn" onclick="addItem('operations')">+ Add Item</button>
@@ -448,7 +448,7 @@
 
             <div class="category-section">
                 <div class="category-header">
-                    <div class="category-title">Vehicles & Transportation (Shared 50%)</div>
+                    <div class="category-title">Vehicles & Transportation</div>
                 </div>
                 <div id="vehiclesItems"></div>
                 <button class="add-item-btn" onclick="addItem('vehicles')">+ Add Item</button>
@@ -456,7 +456,7 @@
 
             <div class="category-section">
                 <div class="category-header">
-                    <div class="category-title">Swag & Camp Items (Shared 50%)</div>
+                    <div class="category-title">Swag & Camp Items</div>
                 </div>
                 <div id="swagItems"></div>
                 <button class="add-item-btn" onclick="addItem('swag')">+ Add Item</button>
@@ -472,7 +472,7 @@
 
             <div class="category-section">
                 <div class="category-header">
-                    <div class="category-title">Forest House & Lodging (Shared 50%)</div>
+                    <div class="category-title">Forest House & Lodging</div>
                 </div>
                 <div id="lodgingItems"></div>
                 <button class="add-item-btn" onclick="addItem('lodging')">+ Add Item</button>
@@ -480,7 +480,7 @@
 
             <div class="category-section">
                 <div class="category-header">
-                    <div class="category-title">Decor & Art (Shared 50%)</div>
+                    <div class="category-title">Decor & Art</div>
                 </div>
                 <div id="decorItems"></div>
                 <button class="add-item-btn" onclick="addItem('decor')">+ Add Item</button>
@@ -488,7 +488,7 @@
 
             <div class="category-section">
                 <div class="category-header">
-                    <div class="category-title">Cleaning & Sanitation (Shared 50%)</div>
+                    <div class="category-title">Cleaning & Sanitation</div>
                 </div>
                 <div id="cleaningItems"></div>
                 <button class="add-item-btn" onclick="addItem('cleaning')">+ Add Item</button>
@@ -496,7 +496,7 @@
 
             <div class="category-section">
                 <div class="category-header">
-                    <div class="category-title">📋 Miscellaneous (Shared 50%)</div>
+                    <div class="category-title">Miscellaneous</div>
                 </div>
                 <div id="miscellaneousItems"></div>
                 <button class="add-item-btn" onclick="addItem('miscellaneous')">+ Add Item</button>
@@ -504,7 +504,7 @@
 
             <div class="category-section">
                 <div class="category-header">
-                    <div class="category-title">Event Staff (Shared 50%)</div>
+                    <div class="category-title">Event Staff</div>
                 </div>
                 <div id="staffItems"></div>
                 <button class="add-item-btn" onclick="addItem('staff')">+ Add Item</button>
@@ -512,7 +512,7 @@
 
             <div class="category-section">
                 <div class="category-header">
-                    <div class="category-title">💼 Camp Director Fee</div>
+                    <div class="category-title">Camp Director Fee</div>
                 </div>
                 <div id="liveEdgeOnlyItems"></div>
                 <button class="add-item-btn" onclick="addItem('liveEdgeOnly')">+ Add Item</button>
@@ -537,7 +537,7 @@
         </div>
     </div>
     
-    <button class="save-button" id="saveButton" onclick="manualSave()">💾 Save Changes</button>
+    <button class="save-button" id="saveButton" onclick="manualSave()">[ Save Changes ]</button>
 
     <script type="module">
         // Firebase Configuration
@@ -653,7 +653,7 @@
                 return `
                     <div class="budget-item" id="item-${category}-${index}" style="background: #E5DED0; padding: 15px; margin-bottom: 10px;">
                         <div class="item-name" style="grid-column: 1 / -1; margin-bottom: 15px; font-weight: 700; color: #000;">
-                            ${item.name} ${!canEdit ? '🔒' : ''}
+                            ${item.name} ${!canEdit ? '(Read-Only)' : ''}
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; align-items: center;">
                             <div>
@@ -736,7 +736,7 @@
                                    value="${item.name}" 
                                    onchange="updateItemName('${category}', ${index}, this.value)"
                                    style="width: 100%; padding: 8px 12px; border: 2px solid #333; border-radius: 6px; font-size: 14px; background: #1a1a1a; color: #e0e0e0;">` :
-                            `<div style="padding: 8px 12px; color: #999;">${item.name} 🔒</div>`
+                            `<div style="padding: 8px 12px; color: #999;">${item.name} (Read-Only)</div>`
                         }
                     </div>
                     <div class="item-input">
@@ -1258,16 +1258,16 @@
         // Manual save with visual feedback
         window.manualSave = function() {
             const btn = document.getElementById('saveButton');
-            btn.textContent = '⏳ Saving...';
+            btn.textContent = '[ Saving... ]';
             btn.className = 'save-button saving';
             
             saveToFirebase();
             
             setTimeout(() => {
-                btn.textContent = '✅ Saved!';
+                btn.textContent = '[ Saved! ]';
                 btn.className = 'save-button saved';
                 setTimeout(() => {
-                    btn.textContent = '💾 Save Changes';
+                    btn.textContent = '[ Save Changes ]';
                     btn.className = 'save-button';
                 }, 2000);
             }, 500);

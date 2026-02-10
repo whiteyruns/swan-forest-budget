@@ -374,7 +374,7 @@
             const MAX_SESSION_TIME = 24 * 60 * 60 * 1000; // 24 hours
             
             if (!auth || !authTime) {
-                window.location.href = 'login.html';
+                window.location.href = '/login.html';
                 return;
             }
             
@@ -382,16 +382,16 @@
             if (Date.now() - parseInt(authTime) > MAX_SESSION_TIME) {
                 sessionStorage.removeItem('budgetAuth');
                 sessionStorage.removeItem('authTime');
-                window.location.href = 'login.html';
+                window.location.href = '/login.html';
             }
         })();
     </script>
     
     <div class="nav-bar">
         <span class="nav-label"><span class="bracket">[</span> CAMP BUDGETS <span class="bracket">]</span></span>
-        <a href="index.html" class="active">Swan Forest</a>
-        <a href="xanadu_budget.html">Xanadu</a>
-        <a href="live_edge_budget.html">Live Edge</a>
+        <a href="/index.html" class="active">Swan Forest</a>
+        <a href="/xanadu_budget.html">Xanadu</a>
+        <a href="/live_edge_budget.html">Live Edge</a>
     </div>
     
     <div class="container">
